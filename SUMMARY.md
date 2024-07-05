@@ -1,6 +1,8 @@
 # Table of contents
 
 * [arch-handbook](README.md)
+* [商标](shang-biao.md)
+* [概述](gai-shu.md)
 
 ## 第一部分 内核
 
