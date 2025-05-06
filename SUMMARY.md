@@ -16,7 +16,7 @@
 * [第 8 章 SMPng 设计文档](di-yi-bu-fen-nei-he/di-8-zhang-smpng-she-ji-wen-dang.md)
 * [第 9 章 编写 FreeBSD 设备驱动程序](di-yi-bu-fen-nei-he/di-9-zhang-bian-xie-freebsd-she-bei-qu-dong-cheng-xu.md)
 * [第 10 章 ISA 设备驱动程序](di-yi-bu-fen-nei-he/di-10-zhang-isa-she-bei-qu-dong-cheng-xu.md)
-* [第 11 章 PCI设备](di-yi-bu-fen-nei-he/di-11-zhang-pci-she-bei.md)
+* [第 11 章 PCI 设备](di-yi-bu-fen-nei-he/di-11-zhang-pci-she-bei.md)
 * [第 12 章 公共存取模型 SCSI 控制器](di-yi-bu-fen-nei-he/di-12-zhang-gong-gong-cun-qu-mo-xing-scsi-kong-zhi-qi.md)
 * [第 13 章 USB 设备](di-yi-bu-fen-nei-he/di-13-zhang-usb-she-bei.md)
 * [第 14 章 Newbus](di-yi-bu-fen-nei-he/di-14-zhang-newbus.md)
