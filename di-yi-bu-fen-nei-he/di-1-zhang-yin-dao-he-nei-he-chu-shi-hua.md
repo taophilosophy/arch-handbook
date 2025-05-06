@@ -37,7 +37,7 @@ POST 的最后一步是 INT 0x19 指令。 INT 0x19 处理程序将引导设备�
 
 ## 1.4. 主引导记录（ boot0 ）
 
-在从 BIOS 接收到控制权并位于内存地址 0x7c00 处后，boot0 开始执行。这是 FreeBSD 控制下的第一段代码。boot0 的任务非常简单：扫描分区表，并让用户选择要从哪个分区引导。分区表是嵌入在 MBR 中的特殊标准数据结构（因此嵌入在 boot0 中），描述了四个标准 PC “分区”。boot0 位于文件系统中的 /boot/boot0。它是一个小的 512 字节文件，它正是 FreeBSD 安装过程在硬盘的 MBR 中写入的内容，如果您在安装时选择了“bootmanager”选项。实际上，boot0 就是 MBR。
+在从 BIOS 接收到控制权并位于内存地址 0x7c00 处后，boot0 开始执行。这是 FreeBSD 控制下的第一段代码。boot0 的任务非常简单：扫描分区表，并让用户选择要从哪个分区引导。分区表是嵌入在 MBR 中的特殊标准数据结构（因此嵌入在 boot0 中），描述了四个标准 PC “分区”。boot0 位于文件系统中的 /boot/boot0。它是一个小的 512 字节文件，它正是 FreeBSD 安装过程在硬盘的 MBR 中写入的内容，如果你在安装时选择了“bootmanager”选项。实际上，boot0 就是 MBR。
 
 如前所述，我们称 BIOS INT 0x19 为在地址 0x7c00 处将 MBR（boot0）加载到内存中。boot0 的源文件可以在 stand/i386/boot0/boot0.S 中找到 - 这是由 Robert Nordier 编写的一段很棒的代码。
 
@@ -1075,7 +1075,7 @@ DATA_SET() 宏扩展为 _MAKE_SET() ，该宏是隐藏所有 sysinit 魔术的�
 #define DATA_SET(set, sym) _MAKE_SET(set, sym)
 ```
 
-执行这些宏后，在内核中创建了各种部分，包括 set.sysinit_set 。在内核二进制文件上运行 objdump，您可能会注意到这些小节的存在：
+执行这些宏后，在内核中创建了各种部分，包括 set.sysinit_set 。在内核二进制文件上运行 objdump，你可能会注意到这些小节的存在：
 
 ```
 % llvm-objdump -h /kernel

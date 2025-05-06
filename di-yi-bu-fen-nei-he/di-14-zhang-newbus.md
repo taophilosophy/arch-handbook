@@ -94,11 +94,11 @@ Newbus 还允许在专门用于此目的的文件中定义接口方法。这些�
 
 系统定义了两个主要接口。第一个基本接口称为 "设备" ，包含所有设备相关的方法。"设备" 接口中的方法包括 "探测"，"连接" 和 "断开" 用于控制硬件检测，以及 "关机"，"暂停" 和 "恢复" 用于关键事件通知。
 
-第二个更复杂的接口是 "总线" 。该接口包含适用于具有子设备的设备的方法，包括用于访问特定于总线的每个设备信息^[1]^，事件通知（ <em>child_detached</em> ， <em>driver_added</em> ）和资源管理（ <em>alloc_resource</em> ， <em>activate_resource</em> ， <em>deactivate_resource</em> ， <em>release_resource</em> ）。
+第二个更复杂的接口是 "总线" 。该接口包含适用于具有子设备的设备的方法，包括用于访问特定于总线的每个设备信息^[1]^，事件通知（ child_detached ， driver_added ）和资源管理（ alloc_resource ， activate_resource ， deactivate_resource ， release_resource ）。
 
 "总线" 接口中的许多方法为总线设备的某个子设备提供服务。这些方法通常使用前两个参数来指定提供服务的总线和请求服务的子设备。为了简化驱动程序代码，这些方法中的许多都有访问器函数，这些函数查找父级并在父级上调用方法。例如，方法 BUS_TEARDOWN_INTR(device_t dev, device_t child, …) 可以使用函数 bus_teardown_intr(device_t child, …) 调用。
 
-系统中的一些总线类型定义了附加接口，以提供对总线特定功能的访问。例如，PCI 总线驱动程序定义了具有两种方法 <em>read_config</em> 和 <em>write_config</em> 用于访问 PCI 设备配置寄存器的 "pci" 接口。
+系统中的一些总线类型定义了附加接口，以提供对总线特定功能的访问。例如，PCI 总线驱动程序定义了具有两种方法 read_config 和 write_config 用于访问 PCI 设备配置寄存器的 "pci" 接口。
 
 ## 14.3. Newbus API
 

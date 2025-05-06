@@ -29,7 +29,7 @@ struct jail {
 };
 ```
 
-正如您所看到的，对于传递给 jail(8) 程序的每个参数，确实在其执行期间设置。
+正如你所看到的，对于传递给 jail(8) 程序的每个参数，确实在其执行期间设置。
 
 ```
 /usr/src/usr.sbin/jail/jail.c
@@ -195,7 +195,7 @@ jail_attach(struct thread *td, struct jail_attach_args *uap)
 
 这个系统调用会进行改变，以区分被 jail 的进程和未被 jail 的进程。 要理解 jail_attach(2) 对我们的作用，需要一些背景信息。
 
-在 FreeBSD 中，每个内核可见线程由其 thread 结构标识，而进程由其 proc 结构描述。 您可以在 /usr/include/sys/proc.h 中找到 thread 和 proc 结构的定义。 例如，任何系统调用中的 td 参数实际上是指向调用线程的 thread 结构的指针，正如前面所述。 td_proc 结构中的 thread 成员，由 td 指向的结构，是指向包含由 td 表示的线程的进程的 proc 结构的指针。 proc 结构包含可以描述所有者身份（ p_ucred ）、进程资源限制（ p_limit ）等的成员。 在由 proc 结构中的 p_ucred 成员指向的 ucred 结构中，有一个指向 prison 结构（ cr_prison ）的指针。
+在 FreeBSD 中，每个内核可见线程由其 thread 结构标识，而进程由其 proc 结构描述。 你可以在 /usr/include/sys/proc.h 中找到 thread 和 proc 结构的定义。 例如，任何系统调用中的 td 参数实际上是指向调用线程的 thread 结构的指针，正如前面所述。 td_proc 结构中的 thread 成员，由 td 指向的结构，是指向包含由 td 表示的线程的进程的 proc 结构的指针。 proc 结构包含可以描述所有者身份（ p_ucred ）、进程资源限制（ p_limit ）等的成员。 在由 proc 结构中的 p_ucred 成员指向的 ucred 结构中，有一个指向 prison 结构（ cr_prison ）的指针。
 
 ```
 /usr/include/sys/proc.h:
@@ -272,7 +272,7 @@ if (jailed(td->td_ucred))
 
 ### 4.2.1. SysV IPC
 
-System V IPC 基于消息。进程可以相互发送这些告诉它们如何行动的消息。处理消息的函数包括：msgctl(3)、msgget(3)、msgsnd(3)和 msgrcv(3)。前面我提到过，您可以打开或关闭某些 sysctl 以影响 jail 的行为。其中一个 sysctl 是 security.jail.sysvipc_allowed 。默认情况下，此 sysctl 设置为 0。如果设置为 1，则会破坏拥有 jail 的整个目的；特权用户可以影响被 jail 化环境之外的进程。消息和信号之间的区别在于消息只包含信号编号。
+System V IPC 基于消息。进程可以相互发送这些告诉它们如何行动的消息。处理消息的函数包括：msgctl(3)、msgget(3)、msgsnd(3)和 msgrcv(3)。前面我提到过，你可以打开或关闭某些 sysctl 以影响 jail 的行为。其中一个 sysctl 是 security.jail.sysvipc_allowed 。默认情况下，此 sysctl 设置为 0。如果设置为 1，则会破坏拥有 jail 的整个目的；特权用户可以影响被 jail 化环境之外的进程。消息和信号之间的区别在于消息只包含信号编号。
 
 /usr/src/sys/kern/sysv_msg.c:
 
