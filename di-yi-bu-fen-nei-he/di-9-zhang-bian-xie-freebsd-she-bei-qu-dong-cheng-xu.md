@@ -1,41 +1,40 @@
 # 第 9 章 编写 FreeBSD 设备驱动程序
 
-
 ## 9.1. 介绍
 
-本章简要介绍了为 FreeBSD 编写设备驱动程序的内容。在这里，设备是指系统中大多数用于硬件相关的东西，如磁盘、打印机或带有键盘的图形显示器。设备驱动程序是操作系统的软件组件，用于控制特定设备。还有所谓的伪设备，其中设备驱动程序在软件中模拟设备的行为，而没有任何特定的底层硬件。设备驱动程序可以静态地编译到系统中，也可以通过动态内核链接器 `kld' 按需加载。
+本章简要介绍了如何为 FreeBSD 编写设备驱动程序。在这个上下文中，“设备”通常指的是与硬件相关的系统组件，例如磁盘、打印机或带有键盘的显示器。设备驱动程序是操作系统中控制特定设备的软件组件。还有所谓的伪设备，设备驱动程序通过软件模拟设备的行为，而没有任何特定的底层硬件。设备驱动程序可以静态地编译进系统，或者通过动态内核链接器设施 `kld` 按需加载。
 
-UNIX®-类操作系统中的大多数设备通过设备节点访问，有时也称为特殊文件。这些文件通常位于文件系统层次结构中的 /dev 目录下。
+在类 UNIX® 操作系统中，大多数设备通过设备节点进行访问，这些节点有时也称为特殊文件。这些文件通常位于文件系统层次结构中的 **/dev** 目录下。
 
-设备驱动程序大致可以分为两类；字符设备驱动程序和网络设备驱动程序。
+设备驱动程序大致可以分为两类：字符设备驱动程序和网络设备驱动程序。
 
-## 9.2. 动态内核链接器功能 - KLD
+## 9.2. 动态内核链接器设施 - KLD
 
-kld 接口允许系统管理员动态地向运行中的系统添加和删除功能。这允许设备驱动程序编写者将其新更改加载到运行中的内核中，而无需不断重新启动以测试更改。
+`kld` 接口允许系统管理员动态地为运行中的系统添加和移除功能。这使得设备驱动程序的编写者能够在不需要不断重启来测试更改的情况下，将新的更改加载到运行中的内核中。
 
-kld 接口用于：
+通过以下命令使用 `kld` 接口：
 
-* kldload - 加载一个新的内核模块
-* kldunload - 卸载一个内核模块
-* kldstat - 列出加载的模块
+* `kldload` - 加载一个新的内核模块
+* `kldunload` - 卸载一个内核模块
+* `kldstat` - 列出已加载的模块
 
-内核模块的骨架布局
+内核模块的框架布局
 
-```
+```c
 /*
- * KLD Skeleton
- * Inspired by Andrew Reiter's Daemonnews article
+ * KLD 框架
+ * 灵感来源于 Andrew Reiter 的 Daemonnews 文章
  */
 
 #include <sys/types.h>
 #include <sys/systm.h>  /* uprintf */
 #include <sys/errno.h>
-#include <sys/param.h>  /* defines used in kernel.h */
+#include <sys/param.h>  /* kernel.h 中使用的定义 */
 #include <sys/module.h>
-#include <sys/kernel.h> /* types used in module initialization */
+#include <sys/kernel.h> /* 模块初始化中使用的类型 */
 
 /*
- * Load handler that deals with the loading and unloading of a KLD.
+ * 处理 KLD 加载和卸载的加载处理函数。
  */
 
 static int
@@ -45,10 +44,10 @@ skel_loader(struct module *m, int what, void *arg)
 
 	switch (what) {
 	case MOD_LOAD:                /* kldload */
-		uprintf("Skeleton KLD loaded.\n");
+		uprintf("Skeleton KLD 加载。\n");
 		break;
 	case MOD_UNLOAD:
-		uprintf("Skeleton KLD unloaded.\n");
+		uprintf("Skeleton KLD 卸载。\n");
 		break;
 	default:
 		err = EOPNOTSUPP;
@@ -57,7 +56,7 @@ skel_loader(struct module *m, int what, void *arg)
 	return(err);
 }
 
-/* Declare this module to the rest of the kernel */
+/* 向内核声明此模块 */
 
 static moduledata_t skel_mod = {
 	"skel",
@@ -70,32 +69,30 @@ DECLARE_MODULE(skeleton, skel_mod, SI_SUB_KLD, SI_ORDER_ANY);
 
 ### 9.2.1. Makefile
 
-FreeBSD 提供了一个系统 makefile 来简化编译内核模块的过程。
+FreeBSD 提供了一个系统 Makefile 来简化编译内核模块。
 
-```
+```c
 SRCS=skeleton.c
 KMOD=skeleton
 
 .include <bsd.kmod.mk>
 ```
 
-运行 make ，将使用这个 makefile 创建一个名为 skeleton.ko 的文件，可以通过键入以下命令将其加载到内核中：
+使用此 Makefile 运行 `make` 将生成一个文件 **skeleton.ko**，可以通过以下命令将其加载到内核中：
 
-```
+```sh
 # kldload -v ./skeleton.ko
 ```
 
 ## 9.3. 字符设备
 
-一个字符设备驱动程序是直接向用户进程传输数据的驱动程序。这是最常见的设备驱动程序类型，在源树中有许多简单的示例。
+字符设备驱动程序是直接与用户进程交换数据的驱动程序。这是最常见的设备驱动程序类型，源代码树中有许多简单的示例。
 
-这个简单的伪设备示例会记住写入它的任何值，并在读取时将它们回显出来。
+这个简单的伪设备例子记住了写入它的所有值，并且在读取时可以将其回显出来。
 
-示例 1。适用于 FreeBSD 10.X - 12.X 的样本回显伪设备驱动程序示例。
-
-```
+```c
 /*
- * Simple Echo pseudo-device KLD
+ * 简单的 Echo 伪设备 KLD
  *
  * Murray Stokely
  * Søren (Xride) Straarup
@@ -104,22 +101,22 @@ KMOD=skeleton
 
 #include <sys/types.h>
 #include <sys/systm.h>  /* uprintf */
-#include <sys/param.h>  /* defines used in kernel.h */
+#include <sys/param.h>  /* kernel.h 中使用的定义 */
 #include <sys/module.h>
-#include <sys/kernel.h> /* types used in module initialization */
-#include <sys/conf.h>   /* cdevsw struct */
-#include <sys/uio.h>    /* uio struct */
+#include <sys/kernel.h> /* 模块初始化中使用的类型 */
+#include <sys/conf.h>   /* cdevsw 结构体 */
+#include <sys/uio.h>    /* uio 结构体 */
 #include <sys/malloc.h>
 
 #define BUFFERSIZE 255
 
-/* Function prototypes */
+/* 函数原型 */
 static d_open_t      echo_open;
 static d_close_t     echo_close;
 static d_read_t      echo_read;
 static d_write_t     echo_write;
 
-/* Character device entry points */
+/* 字符设备入口点 */
 static struct cdevsw echo_cdevsw = {
 	.d_version = D_VERSION,
 	.d_open = echo_open,
@@ -134,16 +131,16 @@ struct s_echo {
 	int len;
 };
 
-/* vars */
+/* 变量 */
 static struct cdev *echo_dev;
 static struct s_echo *echomsg;
 
 MALLOC_DECLARE(M_ECHOBUF);
-MALLOC_DEFINE(M_ECHOBUF, "echobuffer", "buffer for echo module");
+MALLOC_DEFINE(M_ECHOBUF, "echobuffer", "echo 模块的缓冲区");
 
 /*
- * This function is called by the kld[un]load(2) system calls to
- * determine what actions to take when a module is loaded or unloaded.
+ * 该函数由 kld[un]load(2) 系统调用调用，用于
+ * 确定加载或卸载模块时需要执行的操作。
  */
 static int
 echo_loader(struct module *m __unused, int what, void *arg __unused)
@@ -165,12 +162,12 @@ echo_loader(struct module *m __unused, int what, void *arg __unused)
 
 		echomsg = malloc(sizeof(*echomsg), M_ECHOBUF, M_WAITOK |
 		    M_ZERO);
-		printf("Echo device loaded.\n");
+		printf("Echo 设备已加载。\n");
 		break;
 	case MOD_UNLOAD:
 		destroy_dev(echo_dev);
 		free(echomsg, M_ECHOBUF);
-		printf("Echo device unloaded.\n");
+		printf("Echo 设备已卸载。\n");
 		break;
 	default:
 		error = EOPNOTSUPP;
@@ -185,7 +182,7 @@ echo_open(struct cdev *dev __unused, int oflags __unused, int devtype __unused,
 {
 	int error = 0;
 
-	uprintf("Opened device \"echo\" successfully.\n");
+	uprintf("成功打开设备 \"echo\"。\n");
 	return (error);
 }
 
@@ -194,13 +191,13 @@ echo_close(struct cdev *dev __unused, int fflag __unused, int devtype __unused,
     struct thread *td __unused)
 {
 
-	uprintf("Closing device \"echo\".\n");
+	uprintf("关闭设备 \"echo\"。\n");
 	return (0);
 }
 
 /*
- * The read function just takes the buf that was saved via
- * echo_write() and returns it to userland for accessing.
+ * 读取函数将通过 echo_write() 保存的 buf 传递回
+ * 用户空间供访问。
  * uio(9)
  */
 static int
@@ -210,22 +207,21 @@ echo_read(struct cdev *dev __unused, struct uio *uio, int ioflag __unused)
 	int error;
 
 	/*
-	 * How big is this read operation?  Either as big as the user wants,
-	 * or as big as the remaining data.  Note that the 'len' does not
-	 * include the trailing null character.
+	 * 读取操作的大小是多少？ 可能是用户请求的大小，
+	 * 或者是剩余数据的大小。 注意 'len' 不包括尾随的空字符。
 	 */
 	amt = MIN(uio->uio_resid, uio->uio_offset >= echomsg->len + 1 ? 0 :
 	    echomsg->len + 1 - uio->uio_offset);
 
 	if ((error = uiomove(echomsg->msg, amt, uio)) != 0)
-		uprintf("uiomove failed!\n");
+		uprintf("uiomove 失败！\n");
 
 	return (error);
 }
 
 /*
- * echo_write takes in a character string and saves it
- * to buf for later accessing.
+ * echo_write 接受一个字符字符串并将其保存到
+ * buf 中以供以后访问。
  */
 static int
 echo_write(struct cdev *dev __unused, struct uio *uio, int ioflag __unused)
@@ -234,55 +230,54 @@ echo_write(struct cdev *dev __unused, struct uio *uio, int ioflag __unused)
 	int error;
 
 	/*
-	 * We either write from the beginning or are appending -- do
-	 * not allow random access.
+	 * 我们要么从头开始写入，要么是追加 -- 不允许随机访问。
 	 */
 	if (uio->uio_offset != 0 && (uio->uio_offset != echomsg->len))
 		return (EINVAL);
 
-	/* This is a new message, reset length */
+	/* 这是一个新消息，重置长度 */
 	if (uio->uio_offset == 0)
 		echomsg->len = 0;
 
-	/* Copy the string in from user memory to kernel memory */
+	/* 将字符串从用户内存复制到内核内存 */
 	amt = MIN(uio->uio_resid, (BUFFERSIZE - echomsg->len));
 
 	error = uiomove(echomsg->msg + uio->uio_offset, amt, uio);
 
-	/* Now we need to null terminate and record the length */
+	/* 现在我们需要添加空字符并记录长度 */
 	echomsg->len = uio->uio_offset;
 	echomsg->msg[echomsg->len] = 0;
 
 	if (error != 0)
-		uprintf("Write failed: bad address!\n");
+		uprintf("写入失败：地址错误！\n");
 	return (error);
 }
 
 DEV_MODULE(echo, echo_loader, NULL);
 ```
 
-有了这个驱动程序加载，请尝试：
+加载此驱动程序后，尝试执行：
 
-```
+```sh
 # echo -n "Test Data" > /dev/echo
 # cat /dev/echo
-Opened device "echo" successfully.
+成功打开设备 "echo"。
 Test Data
-Closing device "echo".
+关闭设备 "echo"。
 ```
 
-真实的硬件设备在下一章中描述。
+真实硬件设备将在下一章中描述。
 
-## 9.4. 块设备（已消失）
+## 9.4. 块设备（已废除）
 
-其他 UNIX®系统可能支持第二种称为块设备的磁盘设备。块设备是指内核提供缓存的磁盘设备。这种缓存使块设备几乎无法使用，或者至少是非常不可靠的。缓存会重新排序写操作的顺序，使应用程序无法在任一特定时刻知道确切的磁盘内容。
+其他 UNIX® 系统可能支持另一种磁盘设备，称为块设备。块设备是内核提供缓存的磁盘设备。这种缓存使得块设备几乎无法使用，或者至少是不可靠的。缓存会重新排序写操作的顺序，剥夺了应用程序在任何时刻知道磁盘内容的能力。
 
-这导致无法预测和可靠地恢复磁盘数据结构（文件系统、数据库等）。由于写入可能会延迟，内核无法向应用程序报告哪个特定的写操作遇到写错误，这进一步加剧了一致性问题。
+这使得磁盘上数据结构（文件系统、数据库等）的可预测和可靠的崩溃恢复变得不可能。由于写操作可能被延迟，内核无法报告哪个特定的写操作遇到了写入错误，这进一步加剧了一致性问题。
 
-出于这个原因，没有严肃的应用程序依赖块设备，事实上，几乎所有直接访问磁盘的应用程序都非常努力地指定应始终使用字符（或“原始”）设备。由于将每个磁盘（分区）的别名实现为具有不同语义的两个设备会显著复杂化相关的内核代码，FreeBSD 在现代化磁盘 I/O 基础架构的一部分中放弃了对缓存磁盘设备的支持。
+因此，没有严肃的应用程序依赖于块设备，事实上，几乎所有直接访问磁盘的应用程序都非常注意指定应始终使用字符（或“原始”）设备。由于每个磁盘（分区）别名为两个具有不同语义的设备的实现显著复杂了相关内核代码，FreeBSD 在磁盘 I/O 基础设施现代化过程中放弃了对缓存磁盘设备的支持。
 
 ## 9.5. 网络驱动程序
 
-与设备节点不同，网络设备的驱动程序不使用设备节点来进行访问。它们的选择是基于内核内部做出的其他决策，而不是调用 open()，使用网络设备通常是通过使用系统调用 socket(2)来引入的。
+网络设备的驱动程序不使用设备节点来访问。它们的选择基于内核中的其他决策，且通常通过使用系统调用 socket(2) 来引入对网络设备的使用，而不是调用 open()。
 
-更多信息请参见 ifnet(9)，回环设备的源代码以及 Bill Paul 的网络驱动程序。
+有关更多信息，请参见 ifnet(9)，这是环回设备的源代码。
