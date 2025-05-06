@@ -2114,7 +2114,7 @@ int mpo_check_socket_listen(struct ucred *cred, struct socket *socket,
 
 #### 6.7.4.44. `mpo_check_vnode_lookup`
 
-```
+```c
 int mpo_check_vnode_lookup(struct ucred *cred, struct vnode *dvp,
     struct label *dlabel, struct componentname *cnp);
 ```
@@ -2130,7 +2130,7 @@ int mpo_check_vnode_lookup(struct ucred *cred, struct vnode *dvp,
 
 #### 6.7.4.45. `mpo_check_vnode_open`
 
-```
+```c
 int mpo_check_vnode_open(struct ucred *cred, struct vnode *vp,
     struct label *label, int acc_mode);
 ```
@@ -2146,7 +2146,7 @@ int mpo_check_vnode_open(struct ucred *cred, struct vnode *vp,
 
 #### 6.7.4.46. `mpo_check_vnode_readdir`
 
-```
+```c
 int mpo_check_vnode_readdir(struct ucred *cred, struct vnode *dvp,
     struct label *dlabel);
 ```
@@ -2161,7 +2161,7 @@ int mpo_check_vnode_readdir(struct ucred *cred, struct vnode *dvp,
 
 #### 6.7.4.47. `mpo_check_vnode_readlink`
 
-```
+```c
 int mpo_check_vnode_readlink(struct ucred *cred, struct vnode *vp,
     struct label *label);
 ```
@@ -2176,7 +2176,7 @@ int mpo_check_vnode_readlink(struct ucred *cred, struct vnode *vp,
 
 #### 6.7.4.48. `mpo_check_vnode_revoke`
 
-```
+```c
 int mpo_check_vnode_revoke(struct ucred *cred, struct vnode *vp,
     struct label *label);
 ```
@@ -2191,7 +2191,7 @@ int mpo_check_vnode_revoke(struct ucred *cred, struct vnode *vp,
 
 #### 6.7.4.49. `mpo_check_vnode_setacl`
 
-```
+```c
 int mpo_check_vnode_setacl(struct ucred *cred, struct vnode *vp,
     struct label *label, acl_type_t type, struct acl *acl);
 ```
@@ -2206,3 +2206,298 @@ int mpo_check_vnode_setacl(struct ucred *cred, struct vnode *vp,
 
 确定主体凭证是否可以在传入的 vnode 上设置传入类型的 ACL。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
 
+#### 6.7.4.50. `mpo_check_vnode_setextattr`
+
+```c
+int mpo_check_vnode_setextattr(struct ucred *cred, struct vnode *vp,
+    struct label *label, int attrnamespace, const char *name, struct uio *uio);
+```
+
+| 参数              | 描述                                                                                        | 锁定 |
+| --------------- | ----------------------------------------------------------------------------------------- | -- |
+| `cred`          | 主体凭证                                                                                      |    |
+| `vp`            | 对象；vnode                                                                                  |    |
+| `label`         | 与 `vp` 关联的策略标签                                                                            |    |
+| `attrnamespace` | 扩展属性命名空间                                                                                  |    |
+| `name`          | 扩展属性名称                                                                                    |    |
+| `uio`           | I/O 结构指针；参见 [uio(9)](https://man.freebsd.org/cgi/man.cgi?query=uio&sektion=9&format=html) |    |
+
+确定主体凭证是否可以在传入的 vnode 上设置传入名称和命名空间的扩展属性。实现安全标签并将其嵌入扩展属性的策略可能希望对这些属性提供额外的保护。此外，策略应避免根据 `uio` 中引用的数据做出决策，因为在此检查与实际操作之间可能存在竞争条件。如果正在执行删除操作，`uio` 可能为 `NULL`。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
+
+#### 6.7.4.51. `mpo_check_vnode_setflags`
+
+```c
+int mpo_check_vnode_setflags(struct ucred *cred, struct vnode *vp,
+    struct label *label, u_long flags);
+```
+
+| 参数      | 描述                                                                                            | 锁定 |
+| ------- | --------------------------------------------------------------------------------------------- | -- |
+| `cred`  | 主体凭证                                                                                          |    |
+| `vp`    | 对象；vnode                                                                                      |    |
+| `label` | 与 `vp` 关联的策略标签                                                                                |    |
+| `flags` | 文件标志；参见 [chflags(2)](https://man.freebsd.org/cgi/man.cgi?query=chflags&sektion=2&format=html) |    |
+
+确定主体凭证是否可以在传入的 vnode 上设置传入的标志。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
+
+#### 6.7.4.52. `mpo_check_vnode_setmode`
+
+```c
+int mpo_check_vnode_setmode(struct ucred *cred, struct vnode *vp,
+    struct label *label, mode_t mode);
+```
+
+| 参数      | 描述                                                                                        | 锁定 |
+| ------- | ----------------------------------------------------------------------------------------- | -- |
+| `cred`  | 主体凭证                                                                                      |    |
+| `vp`    | 对象；vnode                                                                                  |    |
+| `label` | 与 `vp` 关联的策略标签                                                                            |    |
+| `mode`  | 文件模式；参见 [chmod(2)](https://man.freebsd.org/cgi/man.cgi?query=chmod&sektion=2&format=html) |    |
+
+确定主体凭证是否可以在传入的 vnode 上设置传入的文件模式。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
+
+#### 6.7.4.53. `mpo_check_vnode_setowner`
+
+```c
+int mpo_check_vnode_setowner(struct ucred *cred, struct vnode *vp,
+    struct label *label, uid_t uid, gid_t gid);
+```
+
+| 参数      | 描述             | 锁定 |
+| ------- | -------------- | -- |
+| `cred`  | 主体凭证           |    |
+| `vp`    | 对象；vnode       |    |
+| `label` | 与 `vp` 关联的策略标签 |    |
+| `uid`   | 用户 ID          |    |
+| `gid`   | 组 ID           |    |
+
+确定主体凭证是否可以将传入的 uid 和 gid 设置为传入 vnode 的文件用户 ID 和文件组 ID。如果 ID 设置为 (`-1`)，则表示请求不更新。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
+
+#### 6.7.4.54. `mpo_check_vnode_setutimes`
+
+```c
+int mpo_check_vnode_setutimes(struct ucred *cred, struct vnode *vp,
+    struct label *label, struct timespec atime, struct timespec mtime);
+```
+
+| 参数      | 描述                                                                                          | 锁定 |
+| ------- | ------------------------------------------------------------------------------------------- | -- |
+| `cred`  | 主体凭证                                                                                        |    |
+| `vp`    | 对象；vnode                                                                                    |    |
+| `label` | 与 `vp` 关联的策略标签                                                                              |    |
+| `atime` | 访问时间；参见 [utimes(2)](https://man.freebsd.org/cgi/man.cgi?query=utimes&sektion=2&format=html) |    |
+| `mtime` | 修改时间；参见 [utimes(2)](https://man.freebsd.org/cgi/man.cgi?query=utimes&sektion=2&format=html) |    |
+
+确定主体凭证是否可以在传入的 vnode 上设置传入的访问时间戳。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
+
+#### 6.7.4.55. `mpo_check_proc_sched`
+
+```c
+int mpo_check_proc_sched(struct ucred *ucred, struct proc *proc);
+```
+
+| 参数     | 描述    | 锁定 |
+| ------ | ----- | -- |
+| `cred` | 主体凭证  |    |
+| `proc` | 对象；进程 |    |
+
+确定主体凭证是否可以更改传入进程的调度参数。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），EPERM（缺乏权限），或 ESRCH（限制可见性）。
+
+参见 [setpriority(2)](https://man.freebsd.org/cgi/man.cgi?query=setpriority&sektion=2&format=html) 获取更多信息。
+
+#### 6.7.4.56. `mpo_check_proc_signal`
+
+```c
+int mpo_check_proc_signal(struct ucred *cred, struct proc *proc, int signal);
+```
+
+| 参数       | 描述                                                                                    | 锁定 |
+| -------- | ------------------------------------------------------------------------------------- | -- |
+| `cred`   | 主体凭证                                                                                  |    |
+| `proc`   | 对象；进程                                                                                 |    |
+| `signal` | 信号；参见 [kill(2)](https://man.freebsd.org/cgi/man.cgi?query=kill&sektion=2&format=html) |    |
+
+确定主体凭证是否可以向传入的进程发送传入的信号。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），EPERM（缺乏权限），或 ESRCH（限制可见性）。
+
+#### 6.7.4.57. `mpo_check_vnode_stat`
+
+```c
+int mpo_check_vnode_stat(struct ucred *cred, struct vnode *vp,
+    struct label *label);
+```
+
+| 参数      | 描述             | 锁定 |
+| ------- | -------------- | -- |
+| `cred`  | 主体凭证           |    |
+| `vp`    | 对象；vnode       |    |
+| `label` | 与 `vp` 关联的策略标签 |    |
+
+确定主体凭证是否可以对传入的 vnode 执行 `stat` 操作。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
+
+参见 [stat(2)](https://man.freebsd.org/cgi/man.cgi?query=stat&sektion=2&format=html) 获取更多信息。
+
+#### 6.7.4.58. `mpo_check_ifnet_transmit`
+
+```c
+int mpo_check_ifnet_transmit(struct ucred *cred, struct ifnet *ifnet,
+    struct label *ifnetlabel, struct mbuf *mbuf, struct label *mbuflabel);
+```
+
+| 参数           | 描述                | 锁定 |
+| ------------ | ----------------- | -- |
+| `cred`       | 主体凭证              |    |
+| `ifnet`      | 网络接口              |    |
+| `ifnetlabel` | 与 `ifnet` 关联的策略标签 |    |
+| `mbuf`       | 对象；待发送的 mbuf      |    |
+| `mbuflabel`  | 与 `mbuf` 关联的策略标签  |    |
+
+确定网络接口是否可以发送传入的 mbuf。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
+
+#### 6.7.4.59. `mpo_check_socket_deliver`
+
+```c
+int mpo_check_socket_deliver(struct ucred *cred, struct ifnet *ifnet,
+    struct label *ifnetlabel, struct mbuf *mbuf, struct label *mbuflabel);
+```
+
+| 参数           | 描述                | 锁定 |
+| ------------ | ----------------- | -- |
+| `cred`       | 主体凭证              |    |
+| `ifnet`      | 网络接口              |    |
+| `ifnetlabel` | 与 `ifnet` 关联的策略标签 |    |
+| `mbuf`       | 对象；待发送的 mbuf      |    |
+| `mbuflabel`  | 与 `mbuf` 关联的策略标签  |    |
+
+确定套接字是否可以接收传入的 mbuf 数据报头中的数据。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），或 EPERM（缺乏权限）。
+
+#### 6.7.4.60. `mpo_check_socket_visible`
+
+```c
+int mpo_check_socket_visible(struct ucred *cred, struct socket *so,
+    struct label *socketlabel);
+```
+
+| 参数            | 描述             | 锁定  |
+| ------------- | -------------- | --- |
+| `cred`        | 主体凭证           | 不可变 |
+| `so`          | 对象；套接字         |     |
+| `socketlabel` | 与 `so` 关联的策略标签 |     |
+
+确定主体凭证是否可以通过系统监控功能“查看”传入的套接字（`socket`），例如 [netstat(8)](https://man.freebsd.org/cgi/man.cgi?query=netstat&sektion=8&format=html) 和 [sockstat(1)](https://man.freebsd.org/cgi/man.cgi?query=sockstat&sektion=1&format=html) 使用的功能。返回 0 表示成功，或返回一个 `errno` 值表示失败。建议的失败：EACCES（标签不匹配），EPERM（缺乏权限），或 ESRCH（隐藏可见性）。
+
+#### 6.7.4.61. `mpo_check_system_acct`
+
+```c
+int mpo_check_system_acct(struct ucred *ucred, struct vnode *vp,
+    struct label *vlabel);
+```
+
+| 参数       | 描述                                                                                      | 锁定 |
+| -------- | --------------------------------------------------------------------------------------- | -- |
+| `ucred`  | 主体凭证                                                                                    |    |
+| `vp`     | 会计文件；参见 [acct(5)](https://man.freebsd.org/cgi/man.cgi?query=acct&sektion=5&format=html) |    |
+| `vlabel` | 与 `vp` 关联的标签                                                                            |    |
+
+确定主体是否被允许启用会计功能，基于其标签和会计日志文件的标签。
+
+#### 6.7.4.62. `mpo_check_system_nfsd`
+
+```c
+int mpo_check_system_nfsd(struct ucred *cred);
+```
+
+| 参数     | 描述   | 锁定 |
+| ------ | ---- | -- |
+| `cred` | 主体凭证 |    |
+
+确定主体是否被允许调用 [nfssvc(2)](https://man.freebsd.org/cgi/man.cgi?query=nfssvc&sektion=2&format=html)。
+
+#### 6.7.4.63. `mpo_check_system_reboot`
+
+```c
+int mpo_check_system_reboot(struct ucred *cred, int howto);
+```
+
+| 参数      | 描述                                                                                                  | 锁定 |
+| ------- | --------------------------------------------------------------------------------------------------- | -- |
+| `cred`  | 主体凭证                                                                                                |    |
+| `howto` | 来自 [reboot(2)](https://man.freebsd.org/cgi/man.cgi?query=reboot&sektion=2&format=html) 的 `howto` 参数 |    |
+
+确定主体是否被允许以指定的方式重启系统。
+
+#### 6.7.4.64. `mpo_check_system_settime`
+
+```c
+int mpo_check_system_settime(struct ucred *cred);
+```
+
+| 参数     | 描述   | 锁定 |
+| ------ | ---- | -- |
+| `cred` | 主体凭证 |    |
+
+确定用户是否被允许设置系统时钟。
+
+#### 6.7.4.65. `mpo_check_system_swapon`
+
+```c
+int mpo_check_system_swapon(struct ucred *cred, struct vnode *vp,
+    struct label *vlabel);
+```
+
+| 参数       | 描述           | 锁定 |
+| -------- | ------------ | -- |
+| `cred`   | 主体凭证         |    |
+| `vp`     | 交换设备         |    |
+| `vlabel` | 与 `vp` 关联的标签 |    |
+
+确定主体是否被允许将 `vp` 添加为交换设备。
+
+#### 6.7.4.66. `mpo_check_system_sysctl`
+
+```c
+int mpo_check_system_sysctl(struct ucred *cred, int *name, u_int *namelen,
+    void *old, size_t *oldlenp, int inkernel, void *new, size_t newlen);
+```
+
+| 参数         | 描述                                                                                     | 锁定 |
+| ---------- | -------------------------------------------------------------------------------------- | -- |
+| `cred`     | 主体凭证                                                                                   |    |
+| `name`     | 参见 [sysctl(3)](https://man.freebsd.org/cgi/man.cgi?query=sysctl&sektion=3&format=html) |    |
+| `namelen`  |                                                                                        |    |
+| `old`      |                                                                                        |    |
+| `oldlenp`  |                                                                                        |    |
+| `inkernel` | 布尔值；如果来自内核，则为 `1`                                                                      |    |
+| `new`      | 参见 [sysctl(3)](https://man.freebsd.org/cgi/man.cgi?query=sysctl&sektion=3&format=html) |    |
+| `newlen`   |                                                                                        |    |
+
+确定主体是否应被允许进行指定的 [sysctl(3)](https://man.freebsd.org/cgi/man.cgi?query=sysctl&sektion=3&format=html) 操作。
+
+### 6.7.5. 标签管理调用
+
+当用户进程请求修改对象的标签时，会发生标签重标事件。该过程分为两个阶段：首先执行访问控制检查，以确定更新是否有效且被允许；然后通过单独的入口点执行更新。标签重标入口点通常接受对象、对象标签引用以及进程提交的更新标签。重标期间不建议进行内存分配，因为重标调用不允许失败（失败应在重标检查阶段之前报告）。
+
+## 6.8. 用户空间架构
+
+TrustedBSD MAC 框架包括许多与策略无关的元素，其中包括用于抽象管理标签的 MAC 库接口、对系统凭证管理和登录库的修改，以支持将 MAC 标签分配给用户，以及一组用于监视和修改进程、文件和网络接口标签的工具。有关用户架构的更多细节将在近期添加到本节中。
+
+### 6.8.1. 与策略无关的标签管理 API
+
+TrustedBSD MAC 框架提供了许多库和系统调用，允许应用程序使用与策略无关的接口管理对象的 MAC 标签。这使得应用程序可以操作多种策略的标签，而无需为特定的策略编写支持。这些接口被通用工具如 [ifconfig(8)](https://man.freebsd.org/cgi/man.cgi?query=ifconfig&sektion=8&format=html)、[ls(1)](https://man.freebsd.org/cgi/man.cgi?query=ls&sektion=1&format=html) 和 [ps(1)](https://man.freebsd.org/cgi/man.cgi?query=ps&sektion=1&format=html) 用于查看网络接口、文件和进程上的标签。API 还支持 MAC 管理工具，包括 [getfmac(8)](https://man.freebsd.org/cgi/man.cgi?query=getfmac&sektion=8&format=html)、[getpmac(8)](https://man.freebsd.org/cgi/man.cgi?query=getpmac&sektion=8&format=html)、[setfmac(8)](https://man.freebsd.org/cgi/man.cgi?query=setfmac&sektion=8&format=html)、[setfsmac(8)](https://man.freebsd.org/cgi/man.cgi?query=setfsmac&sektion=8&format=html) 和 [setpmac(8)](https://man.freebsd.org/cgi/man.cgi?query=setpmac&sektion=8&format=html)。MAC API 在 [mac(3)](https://man.freebsd.org/cgi/man.cgi?query=mac&sektion=3&format=html) 中有文档说明。
+
+应用程序处理 MAC 标签的两种形式：一种是内部化的形式，用于返回和设置进程和对象上的标签（`mac_t`），另一种是外部化的形式，基于 C 字符串，适用于存储在配置文件中、显示给用户或从用户输入。每个 MAC 标签包含多个元素，每个元素由名称和值对组成。内核中的策略模块绑定到特定名称，并以特定于策略的方式解释值。在外部化字符串形式中，标签由用 `/` 字符分隔的名称和值对组成。可以使用提供的 API 直接将标签转换为文本并返回；当从内核检索标签时，必须首先为所需的标签元素集准备内部标签存储。通常，这通过使用 [mac\_prepare(3)](https://man.freebsd.org/cgi/man.cgi?query=mac_prepare&sektion=3&format=html) 和一个任意的标签元素列表，或通过调用变体从 [mac.conf(5)](https://man.freebsd.org/cgi/man.cgi?query=mac.conf&sektion=5&format=html) 配置文件加载默认元素集来完成。每个对象的默认值允许应用程序编写者在不了解系统中存在的策略的情况下，有效地显示与对象关联的标签。
+
+>**注意**
+>
+> 当前，MAC 库不支持直接操作标签元素，除了通过转换为文本字符串、编辑字符串并再转换为内部标签的方式。如果有必要，后续可能会添加这样的接口。
+
+### 6.8.2. 标签绑定到用户
+
+标准用户上下文管理接口 [setusercontext(3)](https://man.freebsd.org/cgi/man.cgi?query=setusercontext&sektion=3&format=html) 已被修改，以从 [login.conf(5)](https://man.freebsd.org/cgi/man.cgi?query=login.conf&sektion=5&format=html) 检索与用户类相关的 MAC 标签。这些标签随后在指定 `LOGIN_SETALL` 或显式指定 `LOGIN_SETMAC` 时，与其他用户上下文一起设置。
+
+>**注意**
+>
+>  预计在未来版本的 FreeBSD 中，MAC 标签数据库将与 **login.conf** 用户类抽象分离，并维护在一个独立的数据库中。然而，[setusercontext(3)](https://man.freebsd.org/cgi/man.cgi?query=setusercontext&sektion=3&format=html) API 在这种变更之后应保持不变。
+
+## 6.9. 结论
+
+TrustedBSD MAC 框架允许内核模块以高度集成的方式增强系统安全策略。它们可以基于现有的对象属性，或基于与 MAC 框架协作维护的标签数据来实现这一点。该框架足够灵活，能够实现多种策略类型，包括信息流安全策略（如 MLS 和 Biba），以及基于现有 BSD 凭证或文件保护的策略。策略作者在实现新的安全服务时，可能需要参考本文档以及现有的安全模块。
