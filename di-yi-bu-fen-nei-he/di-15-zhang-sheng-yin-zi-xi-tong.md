@@ -17,7 +17,7 @@ FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题分
 
 预计的驱动程序编写者当然希望从现有模块开始，并使用代码作为最终参考。尽管声音代码整洁且清晰，但它也几乎没有注释。本文档尝试概述框架接口，并回答在适配现有代码时可能出现的一些问题。
 
-作为替代方案，或者作为对现有示例的补充，您可以在 [https://people.FreeBSD.org/\~cg/template.c](https://people.FreeBSD.org/~cg/template.c) 上找到一个带注释的驱动程序模板。
+作为替代方案，或者作为对现有示例的补充，你可以在 [https://people.FreeBSD.org/\~cg/template.c](https://people.FreeBSD.org/~cg/template.c) 上找到一个带注释的驱动程序模板。
 
 ## 15.2. 文件
 
@@ -27,7 +27,7 @@ FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题分
 
 ## 15.3. 探测、附加等
 
-声音驱动程序几乎与任何硬件驱动模块一样进行探测和附加。您可能想查看手册中的 [ISA](https://docs.freebsd.org/en/books/arch-handbook/isa-driver/#isa-driver) 或 [PCI](https://docs.freebsd.org/en/books/arch-handbook/pci/#pci) 特定部分以获取更多信息。
+声音驱动程序几乎与任何硬件驱动模块一样进行探测和附加。你可能想查看手册中的 [ISA](https://docs.freebsd.org/en/books/arch-handbook/isa-driver/#isa-driver) 或 [PCI](https://docs.freebsd.org/en/books/arch-handbook/pci/#pci) 特定部分以获取更多信息。
 
 然而，声音驱动程序在一些方面有所不同：
 

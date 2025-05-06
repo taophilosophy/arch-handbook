@@ -225,7 +225,7 @@ SRCS+=	device_if.h bus_if.h pci_if.h
 .include <bsd.kmod.mk>
 ```
 
-如果将上述源文件和 **Makefile** 放入一个目录中，您可以运行 `make` 来编译示例驱动程序。还可以运行 `make load` 将驱动程序加载到当前正在运行的内核中，运行 `make unload` 在加载后卸载该驱动程序。
+如果将上述源文件和 **Makefile** 放入一个目录中，你可以运行 `make` 来编译示例驱动程序。还可以运行 `make load` 将驱动程序加载到当前正在运行的内核中，运行 `make unload` 在加载后卸载该驱动程序。
 
 ### 11.1.3. 其他资源
 
@@ -238,7 +238,7 @@ FreeBSD 提供了一种面向对象的机制，用于从父总线请求资源。
 
 ### 11.2.1. 基地址寄存器
 
-要对 PCI 设备执行任何特别有用的操作，您需要从 PCI 配置空间获取 *基地址寄存器*（BAR）。获取 BAR 的 PCI 特定细节在 `bus_alloc_resource()` 函数中被抽象化。
+要对 PCI 设备执行任何特别有用的操作，你需要从 PCI 配置空间获取 *基地址寄存器*（BAR）。获取 BAR 的 PCI 特定细节在 `bus_alloc_resource()` 函数中被抽象化。
 
 例如，一个典型的驱动程序可能在 `attach()` 函数中包含如下代码：
 
@@ -288,11 +288,11 @@ board_write(struct ni_softc *sc, uint16_t address, uint16_t value)
 }
 ```
 
-这些函数有 8 位、16 位和 32 位版本，您应根据需要使用 `bus_space_{read|write}_{1|2|4}`。
+这些函数有 8 位、16 位和 32 位版本，你应根据需要使用 `bus_space_{read|write}_{1|2|4}`。
 
 >**注意**
 >
->在 FreeBSD 7.0 及更高版本中，您可以使用 `bus_*` 函数来代替 `bus_space_*` 函数。`bus_*` 函数使用 `struct resource *` 指针，而不是总线标签和总线句柄。因此，您可以删除 `softc` 结构中的总线标签和总线句柄成员，并将 `board_read()` 函数重写为：
+>在 FreeBSD 7.0 及更高版本中，你可以使用 `bus_*` 函数来代替 `bus_space_*` 函数。`bus_*` 函数使用 `struct resource *` 指针，而不是总线标签和总线句柄。因此，你可以删除 `softc` 结构中的总线标签和总线句柄成员，并将 `board_read()` 函数重写为：
 >
 >```sh
 >uint16_t
@@ -330,7 +330,7 @@ board_write(struct ni_softc *sc, uint16_t address, uint16_t value)
     }
 ```
 
-在驱动程序的 `detach` 例程中必须特别小心。您必须使设备的中断流保持安静，并移除中断处理程序。一旦 `bus_teardown_intr()` 返回，您就可以确定中断处理程序将不再被调用，且所有可能正在执行此中断处理程序的线程都已返回。由于此函数可以休眠，因此在调用此函数时，您不能持有任何互斥锁。
+在驱动程序的 `detach` 例程中必须特别小心。你必须使设备的中断流保持安静，并移除中断处理程序。一旦 `bus_teardown_intr()` 返回，你就可以确定中断处理程序将不再被调用，且所有可能正在执行此中断处理程序的线程都已返回。由于此函数可以休眠，因此在调用此函数时，你不能持有任何互斥锁。
 
 ### 11.2.3. DMA
 

@@ -614,7 +614,7 @@ int mpo_externalize_cred_label(struct label *label, char *element_name,
 | `sb`           | 用于填充标签文本表示的字符串缓冲区             |    |
 | `claimed`      | 当 `element_data` 可以填充时，应该递增该值 |    |
 
-根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与您的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
+根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与你的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
 
 #### 6.7.2.31. `mpo_externalize_ifnet_label`
 
@@ -630,7 +630,7 @@ int mpo_externalize_ifnet_label(struct label *label, char *element_name,
 | `sb`           | 用于填充标签文本表示的字符串缓冲区             |    |
 | `claimed`      | 当 `element_data` 可以填充时，应该递增该值 |    |
 
-根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与您的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
+根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与你的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
 
 #### 6.7.2.32. `mpo_externalize_pipe_label`
 
@@ -646,7 +646,7 @@ int mpo_externalize_pipe_label(struct label *label, char *element_name,
 | `sb`           | 用于填充标签文本表示的字符串缓冲区             |    |
 | `claimed`      | 当 `element_data` 可以填充时，应该递增该值 |    |
 
-根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与您的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
+根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与你的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
 
 #### 6.7.2.33. `mpo_externalize_socket_label`
 
@@ -662,7 +662,7 @@ int mpo_externalize_socket_label(struct label *label, char *element_name,
 | `sb`           | 用于填充标签文本表示的字符串缓冲区             |    |
 | `claimed`      | 当 `element_data` 可以填充时，应该递增该值 |    |
 
-根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与您的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
+根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与你的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
 
 #### 6.7.2.34. `mpo_externalize_socket_peer_label`
 
@@ -678,7 +678,7 @@ int mpo_externalize_socket_peer_label(struct label *label, char *element_name,
 | `sb`           | 用于填充标签文本表示的字符串缓冲区             |    |
 | `claimed`      | 当 `element_data` 可以填充时，应该递增该值 |    |
 
-根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与您的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
+根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与你的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
 
 #### 6.7.2.35. `mpo_externalize_vnode_label`
 
@@ -694,7 +694,7 @@ int mpo_externalize_vnode_label(struct label *label, char *element_name,
 | `sb`           | 用于填充标签文本表示的字符串缓冲区             |    |
 | `claimed`      | 当 `element_data` 可以填充时，应该递增该值 |    |
 
-根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与您的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
+根据传递的标签结构生成外部化标签。外部化标签是标签内容的文本表示，可以供用户态应用程序使用，并由用户读取。目前，所有策略的 `externalize` 入口点都会被调用，因此实现应检查 `element_name` 的内容，在尝试填充 `sb` 之前。如果 `element_name` 与你的策略名称不匹配，直接返回 0。只有在外部化标签数据时发生错误时，才返回非零值。一旦策略填充了 `element_data`，`*claimed` 应递增。
 
 #### 6.7.2.36. `mpo_internalize_cred_label`
 

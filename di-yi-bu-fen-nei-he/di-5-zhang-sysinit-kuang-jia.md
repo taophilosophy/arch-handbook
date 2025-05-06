@@ -57,7 +57,7 @@ void foo_arg(void *vdata)
 SYSINIT(bar, SI_SUB_FOO, SI_ORDER_FOO, foo_arg, &foo_voodoo);
 ```
 
-请注意，`SI_SUB_FOO` 和 `SI_ORDER_FOO` 需要在 `sysinit_sub_id` 和 `sysinit_elem_order` 枚举列表中，如上所述。可以使用现有的枚举值，或者添加自己的枚举值。您也可以使用数学来微调 SYSINIT 的执行顺序。此示例显示了一个需要在处理内核参数调优的 SYSINIT 之前运行的 SYSINIT。
+请注意，`SI_SUB_FOO` 和 `SI_ORDER_FOO` 需要在 `sysinit_sub_id` 和 `sysinit_elem_order` 枚举列表中，如上所述。可以使用现有的枚举值，或者添加自己的枚举值。你也可以使用数学来微调 SYSINIT 的执行顺序。此示例显示了一个需要在处理内核参数调优的 SYSINIT 之前运行的 SYSINIT。
 
 **示例 2：调整 `SYSINIT()` 顺序**
 

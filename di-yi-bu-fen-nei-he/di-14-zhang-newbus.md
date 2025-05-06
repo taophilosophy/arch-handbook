@@ -97,7 +97,7 @@ int FOO_DOIT_TO_CHILD(device_t dev, device_t child);
 
 "bus" 接口中的许多方法为总线设备的某个子设备提供服务。这些方法通常使用前两个参数来指定提供服务的总线以及请求服务的子设备。为了简化驱动程序代码，许多这些方法具有访问函数，查找父设备并调用父设备上的方法。例如，方法 `BUS_TEARDOWN_INTR(device_t dev, device_t child, …)` 可以通过函数 `bus_teardown_intr(device_t child, …)` 调用。
 
-系统中的某些总线类型定义了额外的接口，以提供对总线特定功能的访问。例如，PCI 总线驱动程序定义了 "pci" 接口，它具有两个方法 `<em>read_config</em>` 和 `<em>write_config</em>`，用于访问 PCI 设备的配置寄存器。
+系统中的某些总线类型定义了额外的接口，以提供对总线特定功能的访问。例如，PCI 总线驱动程序定义了 "pci" 接口，它具有两个方法 `read_config` 和 `write_config`，用于访问 PCI 设备的配置寄存器。
 
 ## 14.3. Newbus API
 

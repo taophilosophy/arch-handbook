@@ -167,9 +167,9 @@ kobj_method_t foomethods[] = {
 
 ### 3.3.7. 创建对象
 
-使用 Kobj 的第三步是定义对象。Kobj 对象创建例程假定 Kobj 数据位于对象的开头。如果这种假设不适用，您将需要自行分配对象，并在对象的 Kobj 部分使用 `kobj_init()`；否则，您可以使用 `kobj_create()` 来自动分配和初始化对象的 Kobj 部分。`kobj_init()` 也可以用于更改对象使用的类。
+使用 Kobj 的第三步是定义对象。Kobj 对象创建例程假定 Kobj 数据位于对象的开头。如果这种假设不适用，你将需要自行分配对象，并在对象的 Kobj 部分使用 `kobj_init()`；否则，你可以使用 `kobj_create()` 来自动分配和初始化对象的 Kobj 部分。`kobj_init()` 也可以用于更改对象使用的类。
 
-为了将 Kobj 集成到对象中，您应该使用宏 `KOBJ_FIELDS`。
+为了将 Kobj 集成到对象中，你应该使用宏 `KOBJ_FIELDS`。
 
 例如：
 

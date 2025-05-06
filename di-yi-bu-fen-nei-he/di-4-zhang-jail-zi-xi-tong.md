@@ -29,7 +29,7 @@ struct jail {
 };
 ```
 
-如您所见，每个传递给 [jail(8)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=8&format=html) 程序的参数都有一个对应的条目，实际上它们会在程序执行期间被设置。
+如你所见，每个传递给 [jail(8)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=8&format=html) 程序的参数都有一个对应的条目，实际上它们会在程序执行期间被设置。
 
 ```c
 /usr/src/usr.sbin/jail/jail.c
@@ -72,7 +72,7 @@ if (execv(argv[3], argv + 3) != 0)
     err(1, "execv: %s", argv[3]);
 ```
 
-如您所见，调用了 `jail()` 函数，并且其参数是已填充的 `jail` 结构，最后执行了指定的程序。我将讨论 jail 在内核中的实现。
+如你所见，调用了 `jail()` 函数，并且其参数是已填充的 `jail` 结构，最后执行了指定的程序。我将讨论 jail 在内核中的实现。
 
 ### 4.1.2. 内核空间
 
@@ -124,7 +124,7 @@ SYSCTL_INT(_security_jail, OID_AUTO, mount_allowed, CTLFLAG_RW,
 
 #### 4.1.2.2. [jail(2)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=2&format=html) 系统调用
 
-像所有系统调用一样，[jail(2)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=2&format=html) 系统调用接收两个参数，`struct thread *td` 和 `struct jail_args *uap`。`td` 是指向描述调用线程的 `thread` 结构的指针。在此上下文中，`uap` 是指向一个结构的指针，该结构包含指向用户空间 **jail.c** 传递的 `jail` 结构的指针。当我之前描述用户空间程序时，您看到 [jail(2)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=2&format=html) 系统调用接收一个 `jail` 结构作为参数。
+像所有系统调用一样，[jail(2)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=2&format=html) 系统调用接收两个参数，`struct thread *td` 和 `struct jail_args *uap`。`td` 是指向描述调用线程的 `thread` 结构的指针。在此上下文中，`uap` 是指向一个结构的指针，该结构包含指向用户空间 **jail.c** 传递的 `jail` 结构的指针。当我之前描述用户空间程序时，你看到 [jail(2)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=2&format=html) 系统调用接收一个 `jail` 结构作为参数。
 
 ```c
 /usr/src/sys/kern/kern_jail.c:
@@ -195,7 +195,7 @@ jail_attach(struct thread *td, struct jail_attach_args *uap)
 
 该系统调用对进程进行一系列更改，使其与未被 jail 限制的进程区分开来。为了理解 [jail\_attach(2)](https://man.freebsd.org/cgi/man.cgi?query=jail_attach&sektion=2&format=html) 的作用，我们需要一些背景信息。
 
-在 FreeBSD 中，每个内核可见的线程都由其 `thread` 结构标识，而进程则由其 `proc` 结构描述。您可以在 **/usr/include/sys/proc.h** 中找到 `thread` 和 `proc` 结构的定义。例如，任何系统调用中的 `td` 参数实际上是指向调用线程的 `thread` 结构的指针。如前所述，`td_proc` 是指向表示包含该线程的进程的 `proc` 结构的指针。`proc` 结构包含可以描述进程所有者身份（`p_ucred`）、进程资源限制（`p_limit`）等信息。在 `proc` 结构中指向的 `ucred` 结构（通过 `p_ucred` 成员访问）中，存在指向 `prison` 结构的指针（`cr_prison`）。
+在 FreeBSD 中，每个内核可见的线程都由其 `thread` 结构标识，而进程则由其 `proc` 结构描述。你可以在 **/usr/include/sys/proc.h** 中找到 `thread` 和 `proc` 结构的定义。例如，任何系统调用中的 `td` 参数实际上是指向调用线程的 `thread` 结构的指针。如前所述，`td_proc` 是指向表示包含该线程的进程的 `proc` 结构的指针。`proc` 结构包含可以描述进程所有者身份（`p_ucred`）、进程资源限制（`p_limit`）等信息。在 `proc` 结构中指向的 `ucred` 结构（通过 `p_ucred` 成员访问）中，存在指向 `prison` 结构的指针（`cr_prison`）。
 
 ```c
 /usr/include/sys/proc.h:
