@@ -1,6 +1,6 @@
 # Table of contents
 
-* [arch-handbook](README.md)
+* [FreeBSD 架构手册翻译项目](README.md)
 * [商标](shang-biao.md)
 * [概述](gai-shu.md)
 
