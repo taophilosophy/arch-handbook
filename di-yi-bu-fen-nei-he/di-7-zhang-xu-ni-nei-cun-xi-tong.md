@@ -58,7 +58,7 @@ FreeBSD 内核已做出集中努力，动态调整自身配置。通常情况下
 
 默认情况下，FreeBSD 内核并未进行优化。您可以在内核配置文件中使用 `makeoptions` 指令设置调试和优化标志。请注意，除非您能够处理生成的大型内核（通常超过 7 MB），否则不应使用 `-g`。
 
-```
+```ini
 makeoptions      DEBUG="-g"
 makeoptions      COPTFLAGS="-O -pipe"
 ```
