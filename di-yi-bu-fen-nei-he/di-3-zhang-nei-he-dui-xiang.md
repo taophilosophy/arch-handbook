@@ -66,6 +66,7 @@ KOBJMETHOD(NAME, FUNC)
 <sys/param.h>
 <sys/kobj.h>
 ```
+
 ### 3.3.5. 创建接口模板
 
 使用 Kobj 的第一步是创建接口。创建接口包括创建一个模板，脚本 **src/sys/kern/makeobjops.pl** 可以用来生成方法声明和方法查找函数的头文件和代码。

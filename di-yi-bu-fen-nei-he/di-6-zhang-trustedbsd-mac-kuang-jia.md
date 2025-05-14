@@ -227,7 +227,7 @@ int mpo_syscall(struct thread *td, int call, void *arg);
 
 >**注意**
 >
->  当前模块必须自行执行 `copyin()` 来处理系统调用数据。
+> 当前模块必须自行执行 `copyin()` 来处理系统调用数据。
 
 #### 6.7.1.4. `mpo_thread_userret`
 
@@ -2496,7 +2496,7 @@ TrustedBSD MAC 框架提供了许多库和系统调用，允许应用程序使�
 
 >**注意**
 >
->  预计在未来版本的 FreeBSD 中，MAC 标签数据库将与 **login.conf** 用户类抽象分离，并维护在一个独立的数据库中。然而，[setusercontext(3)](https://man.freebsd.org/cgi/man.cgi?query=setusercontext&sektion=3&format=html) API 在这种变更之后应保持不变。
+> 预计在未来版本的 FreeBSD 中，MAC 标签数据库将与 **login.conf** 用户类抽象分离，并维护在一个独立的数据库中。然而，[setusercontext(3)](https://man.freebsd.org/cgi/man.cgi?query=setusercontext&sektion=3&format=html) API 在这种变更之后应保持不变。
 
 ## 6.9. 结论
 
