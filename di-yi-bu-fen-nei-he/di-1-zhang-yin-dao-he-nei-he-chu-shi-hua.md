@@ -71,7 +71,7 @@ BOOT_BOOT0_ORG?=0x600
 
 >**注意**
 >
-> 为了更好地展示，某些指令已进行了一些修改。例如，扩展了一些宏，并省略了某些宏测试，当测试的结果已知时。这适用于所有显示的代码示例。 
+> 为了更好地展示，某些指令已进行了一些修改。例如，扩展了一些宏，并省略了某些宏测试，当测试的结果已知时。这适用于所有显示的代码示例。
 
 ```asm
 start:
@@ -203,6 +203,7 @@ print_prompt:
       callw putkey		#  按键
       jmp start_input		# 跳过蜂鸣
 ```
+
 **stand/i386/boot0/boot0.S**
 
 最后，跳转到 `start_input`，在这里使用 BIOS 服务启动定时器并读取用户的键盘输入；如果定时器到期，则会选择默认选项：
@@ -1192,6 +1193,7 @@ static char init_path[MAXPATHLEN] =
     "/sbin/init:/sbin/oinit:/sbin/init.bak:/rescue/init";
 #endif
 ```
+
 [1](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnoteref_1). 如果用户在 boot0 阶段选择操作系统后按下键盘，就会显示此提示。
 
 [2](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnoteref_2). 如果有疑问，我们建议读者参考官方的 Intel 手册，手册中详细描述了每条指令的语义。
