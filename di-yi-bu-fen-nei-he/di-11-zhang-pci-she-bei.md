@@ -215,7 +215,7 @@ DRIVER_MODULE(mypci, pci, mypci_driver, mypci_devclass, 0, 0);
 
 ### 11.1.2. 示例驱动程序的 **Makefile**
 
-```c
+```make
 # mypci 驱动程序的 Makefile
 
 KMOD=	mypci
@@ -243,7 +243,7 @@ FreeBSD 提供了一种面向对象的机制，用于从父总线请求资源。
 例如，一个典型的驱动程序可能在 `attach()` 函数中包含如下代码：
 
 ```c
-sc->bar0id = PCIR_BAR(0);
+    sc->bar0id = PCIR_BAR(0);
     sc->bar0res = bus_alloc_resource(dev, SYS_RES_MEMORY, &sc->bar0id,
 				  0, ~0, 1, RF_ACTIVE);
     if (sc->bar0res == NULL) {
@@ -294,7 +294,7 @@ board_write(struct ni_softc *sc, uint16_t address, uint16_t value)
 >
 >在 FreeBSD 7.0 及更高版本中，你可以使用 `bus_*` 函数来代替 `bus_space_*` 函数。`bus_*` 函数使用 `struct resource *` 指针，而不是总线标签和总线句柄。因此，你可以删除 `softc` 结构中的总线标签和总线句柄成员，并将 `board_read()` 函数重写为：
 >
->```sh
+>```c
 >uint16_t
 >board_read(struct ni_softc *sc, uint16_t address)
 >{
