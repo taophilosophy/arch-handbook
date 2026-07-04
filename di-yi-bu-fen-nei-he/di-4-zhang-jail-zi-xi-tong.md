@@ -289,7 +289,7 @@ if (!jail_sysvipc_allowed && jailed(td->td_ucred))
     return (ENOSYS);
 ```
 
-信号量系统调用允许进程通过对一组信号量执行原子操作来同步执行。基本上，信号量为进程提供了另一种锁定资源的方法。然而，等待正在被使用的信号量的进程将会进入睡眠状态，直到资源被释放。以下信号量系统调用在 jail 内部被阻止：[semget(2)](https://man.freebsd.org/cgi/man.cgi?query=semget&sektion=2&format=html)、[semctl(2)](https://man.freebsd.org/cgi/man.cgi?query=semctl&sektion=2&format=html) 和 [semop(2)](https://man.freebsd.org/cgi/man.cgi?query=semop&sektion=2&format=html)。
+信号量系统调用允许进程通过对一组信号量执行原子操作来同步执行。基本上，信号量为进程提供了另一种锁定资源的方法。然而，等待正在使用的信号量的进程会进入睡眠状态，直到资源释放。以下信号量系统调用在 jail 内部被阻止：[semget(2)](https://man.freebsd.org/cgi/man.cgi?query=semget&sektion=2&format=html)、[semctl(2)](https://man.freebsd.org/cgi/man.cgi?query=semctl&sektion=2&format=html) 和 [semop(2)](https://man.freebsd.org/cgi/man.cgi?query=semop&sektion=2&format=html)。
 
 **/usr/src/sys/kern/sysv_sem.c**：
 
