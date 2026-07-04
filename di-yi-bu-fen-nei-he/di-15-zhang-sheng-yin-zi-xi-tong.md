@@ -89,7 +89,7 @@ FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题清
 * 然后，声音驱动将整个内存区域（`sndbuf_getbuf()`，`sndbuf_getsize()`）以 `sndbuf_getblksz()` 字节为单位重复传输到设备。对于每个传输的块，它会回调 **pcm** 的 `chn_intr()` 函数（通常在中断时发生）。
 * `chn_intr()` 会将新数据复制到已传输到设备的区域（现在为空闲），并对 `snd_dbuf` 结构进行适当的更新。
 
-#### 15.4.1.3. channel\_init
+#### 15.4.1.3. channel_init
 
 `xxxchannel_init()` 用于初始化每个播放或录音通道。该调用由声音驱动的附加例程发起。（参见[探测和附加章节](https://docs.freebsd.org/en/books/arch-handbook/sound/#pcm-probe-and-attach)）。
 
@@ -108,7 +108,7 @@ static void *
 * ①  `b` 是指向通道 `struct snd_dbuf` 的地址。函数中应通过调用 `sndbuf_alloc()` 初始化该缓冲区。要使用的缓冲区大小通常是设备“典型”单位传输大小的小倍数。`c` 是 **pcm** 通道控制结构的指针，这是一个不透明对象。函数应将其存储在本地通道结构中，以供后续 **pcm** 调用使用（例如：`chn_intr(c)`）。`dir` 表示通道的方向（`PCMDIR_PLAY` 或 `PCMDIR_REC`）。
 * ② 该函数应返回指向用于控制此通道的私有区域的指针。该指针将作为参数传递给其他通道接口调用。  
 
-#### 15.4.1.4. channel\_setformat
+#### 15.4.1.4. channel_setformat
 
 `xxxchannel_setformat()` 应该为指定的通道和指定的声音格式设置硬件。
 
@@ -124,7 +124,7 @@ static int
 
 * ①  `format` 作为 `AFMT_XXX` 值（**soundcard.h**）指定。
 
-#### 15.4.1.5. channel\_setspeed
+#### 15.4.1.5. channel_setspeed
 
 `xxxchannel_setspeed()` 为指定的采样速度设置通道硬件，并返回可能调整后的速度。
 
@@ -138,7 +138,7 @@ static int
            }
 ```
 
-#### 15.4.1.6. channel\_setblocksize
+#### 15.4.1.6. channel_setblocksize
 
 `xxxchannel_setblocksize()` 设置块大小，即 **pcm** 和声音驱动之间、以及声音驱动和设备之间的单位事务的大小。通常，这是传输发生中断前传输的字节数。在传输过程中，每当传输该大小的数据时，声音驱动应调用 **pcm** 的 `chn_intr()`。
 
@@ -156,7 +156,7 @@ static int
 
 * ① 函数返回可能调整后的块大小。如果块大小确实更改，则应调用 `sndbuf_resize()` 来调整缓冲区。
   
-#### 15.4.1.7. channel\_trigger
+#### 15.4.1.7. channel_trigger
 
 `xxxchannel_trigger()` 由 **pcm** 调用以控制驱动中的数据传输操作。
 
@@ -176,15 +176,15 @@ static int
 >
 >如果驱动程序使用 ISA DMA，应该在对设备执行操作之前调用 `sndbuf_isadma()`，它会处理 DMA 芯片的相关操作。
 
-#### 15.4.1.8. channel\_getptr
+#### 15.4.1.8. channel_getptr
 
 `xxxchannel_getptr()` 返回传输缓冲区中的当前偏移量。通常这将由 `chn_intr()` 调用，这样 **pcm** 就能知道可以在哪里传输新数据。
 
-#### 15.4.1.9. channel\_free
+#### 15.4.1.9. channel_free
 
 `xxxchannel_free()` 用于释放通道资源，例如在卸载驱动程序时。如果通道数据结构是动态分配的，或者 `sndbuf_alloc()` 没有用于缓冲区分配，则应该实现此函数。
 
-#### 15.4.1.10. channel\_getcaps
+#### 15.4.1.10. channel_getcaps
 
 ```c
 struct pcmchan_caps *
@@ -204,7 +204,7 @@ struct pcmchan_caps *
 
 ### 15.4.2. MIXER 接口
 
-#### 15.4.2.1. mixer\_init
+#### 15.4.2.1. mixer_init
 
 `xxxmixer_init()` 用于初始化硬件，并告诉 **pcm** 可用的播放和录音混音设备。
 
@@ -230,7 +230,7 @@ static int
 
 混音器位定义可以在 **soundcard.h** 中找到（`SOUND_MASK_XXX` 值和 `SOUND_MIXER_XXX` 位移）。
 
-#### 15.4.2.2. mixer\_set
+#### 15.4.2.2. mixer_set
 
 `xxxmixer_set()` 设置一个混音器设备的音量级别。
 
@@ -248,7 +248,7 @@ static int
 * ① 设备由 `SOUND_MIXER_XXX` 值指定。音量值的范围是 [0-100]。值为零时应该静音设备。
 * ② 由于硬件级别可能与输入比例不匹配，并且可能会发生一些四舍五入，函数返回实际的音量级别（范围为 0-100），如上所示。
 
-#### 15.4.2.3. mixer\_setrecsrc
+#### 15.4.2.3. mixer_setrecsrc
 
 `xxxmixer_setrecsrc()` 设置录音源设备。
 
@@ -268,7 +268,7 @@ static int
 * ① 所需的录音设备作为一个位字段指定。
 * ② 返回实际设置为录音的设备。有些驱动程序只能为录音设置一个设备。如果发生错误，函数应返回 `-1`。
 
-#### 15.4.2.4. mixer\_uninit, mixer\_reinit
+#### 15.4.2.4. mixer_uninit, mixer_reinit
 
 `xxxmixer_uninit()` 应确保所有声音被静音，并且如果可能，混音器硬件应该关闭电源。
 

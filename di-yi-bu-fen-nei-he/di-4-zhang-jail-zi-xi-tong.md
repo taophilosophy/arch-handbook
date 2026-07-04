@@ -72,7 +72,7 @@ if (execv(argv[3], argv + 3) != 0)
     err(1, "execv: %s", argv[3]);
 ```
 
-如你所见，调用了 `jail()` 函数，并且其参数是用传给程序的参数填充好的 `jail` 结构。最后，你指定的程序将被执行。现在我将讨论 jail 在内核中的实现。
+如你所见，调用了 `jail()` 函数，并且其参数是用传给程序的参数填充好的 `jail` 结构。最后，你指定的程序会执行。现在我将讨论 jail 在内核中的实现。
 
 ### 4.1.2. 内核空间
 
@@ -217,7 +217,7 @@ struct ucred {
 };
 ```
 
-在 **kern_jail.c** 中，`jail()` 函数调用 `jail_attach()` 并传入给定的 `jid`。`jail_attach()` 然后调用 `change_root()` 函数来更改调用进程的根目录。随后，`jail_attach()` 创建一个新的 `ucred` 结构，并在成功将 `prison` 结构附加到 `ucred` 结构后，将新创建的 `ucred` 结构附加到调用进程。从那时起，调用进程将被视为一个已被 jail 限制的进程。当内核例程 `jailed()` 被调用并传入新创建的 `ucred` 结构时，它将返回 1，表示该凭据与某个 jail 相关联。所有在 jail 内创建的进程的公共祖先进程是运行 [jail(8)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=8&format=html) 的进程，因为它调用了 [jail(2)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=2&format=html) 系统调用。当一个程序通过 [execve(2)](https://man.freebsd.org/cgi/man.cgi?query=execve&sektion=2&format=html) 被执行时，它会继承父进程的 `ucred` 结构中的 jail 属性，因此它也会有一个 jail 的 `ucred` 结构。
+在 **kern_jail.c** 中，`jail()` 函数调用 `jail_attach()` 并传入给定的 `jid`。`jail_attach()` 然后调用 `change_root()` 函数来更改调用进程的根目录。随后，`jail_attach()` 创建一个新的 `ucred` 结构，并在成功将 `prison` 结构附加到 `ucred` 结构后，将新创建的 `ucred` 结构附加到调用进程。从那时起，调用进程就被视为受 jail 限制的进程。当内核例程 `jailed()` 被调用并传入新创建的 `ucred` 结构时，它将返回 1，表示该凭据与某个 jail 相关联。所有在 jail 内创建的进程的公共祖先进程是运行 [jail(8)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=8&format=html) 的进程，因为它调用了 [jail(2)](https://man.freebsd.org/cgi/man.cgi?query=jail&sektion=2&format=html) 系统调用。当一个程序通过 [execve(2)](https://man.freebsd.org/cgi/man.cgi?query=execve&sektion=2&format=html) 执行时，它会继承父进程的 `ucred` 结构中的 jail 属性，因此它也会有一个 jail 的 `ucred` 结构。
 
 ```c
 /usr/src/sys/kern/kern_jail.c

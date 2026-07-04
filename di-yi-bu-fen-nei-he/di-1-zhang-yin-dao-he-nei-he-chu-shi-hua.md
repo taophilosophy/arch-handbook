@@ -17,11 +17,13 @@ FreeBSD 的启动过程可能出乎意料地复杂。在控制权从 BIOS 转交
 
 
 | **FreeBSD 组件** | **输出（可能有所不同）** |
-| ------------------- | --------------------------- |
-| `boot0`                  | <pre>F1    FreeBSD<br />F2    BSD<br />F5    Disk 2</pre>              |
-| `boot2` \^[[1](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnotedef_1 "View footnote.")]\^     | <pre>>FreeBSD/x86 BOOT<br />Default: 0:ad(0p4)/boot/loader<br />boot:</pre>                  |
-| **loader**          | <pre>BTX loader 1.00 BTX version is 1.02<br />Consoles: internal video/keyboard<br />BIOS drive C: is disk0<br />BIOS 639kB/2096064kB available memory<br />FreeBSD/x86 bootstrap loader, Revision 1.1<br />Console internal video/keyboard<br />(root@releng1.nyi.freebsd.org, Fri Apr  9 04:04:45 UTC 2021)<br />Loading /boot/defaults/loader.conf<br />/boot/kernel/kernel text=0xed9008 data=0x117d28+0x176650 syms=[0x8+0x137988+0x8+0x1515f8]</pre>       |
-| 内核              | <pre>Copyright (c) 1992-2021 The FreeBSD Project.<br />Copyright (c) 1979, 1980, 1983, 1986, 1988, 1989, 1991, 1992, 1993, 1994<br />        The Regents of the University of California. All rights reserved.<br />FreeBSD is a registered trademark of The FreeBSD Foundation.<br />FreeBSD 13.0-RELEASE 0 releng/13.0-n244733-ea31abc261f: Fri Apr  9 04:04:45 UTC 2021<br />    root@releng1.nyi.freebsd.org:/usr/obj/usr/src/i386.i386/sys/GENERIC i386<br />FreeBSD clang version 11.0.1 (git@github.com:llvm/llvm-project.git llvmorg-11.0.1-0-g43ff75f2c3fe)</pre>      |
+| :---: | :---: |
+| `boot0` | `F1    FreeBSD` `F2    BSD` `F5    Disk 2` |
+| `boot2` [^1] | `>>FreeBSD/x86 BOOT` `Default: 0:ad(0p4)/boot/loader` `boot:` |
+| **loader** | `BTX loader 1.00 BTX version is 1.02` `Consoles: internal video/keyboard` `BIOS drive C: is disk0` `BIOS 639kB/2096064kB available memory` `FreeBSD/x86 bootstrap loader, Revision 1.1` `Console internal video/keyboard` `(root@releng1.nyi.freebsd.org, Fri Apr  9 04:04:45 UTC 2021)` `Loading /boot/defaults/loader.conf` `/boot/kernel/kernel text=0xed9008 data=0x117d28+0x176650 syms=[0x8+0x137988+0x8+0x1515f8]` |
+| 内核 | `Copyright (c) 1992-2021 The FreeBSD Project.` `Copyright (c) 1979, 1980, 1983, 1986, 1988, 1989, 1991, 1992, 1993, 1994` `The Regents of the University of California. All rights reserved.` `FreeBSD is a registered trademark of The FreeBSD Foundation.` `FreeBSD 13.0-RELEASE 0 releng/13.0-n244733-ea31abc261f: Fri Apr  9 04:04:45 UTC 2021` `root@releng1.nyi.freebsd.org:/usr/obj/usr/src/i386.i386/sys/GENERIC i386` `FreeBSD clang version 11.0.1 (git@github.com:llvm/llvm-project.git llvmorg-11.0.1-0-g43ff75f2c3fe)` |
+
+[^1]: 此提示符会在用户于 boot0 阶段选择要引导的操作系统后立即按键时出现。
 
 ## 1.3. BIOS
 
@@ -228,7 +230,7 @@ read_key:
 
 请求中断 `0x1a`，并将参数 `0` 放入寄存器 `%ah`。BIOS 有一套预定义的服务，应用程序通过软件生成的中断 `int` 指令请求这些服务，并将参数传递到寄存器（在这里是 `%ah`）。在此，我们请求自午夜以来的时钟滴答数；该值由 BIOS 通过 RTC（实时时钟）计算。这个时钟可以被设置为 2 Hz 到 8192 Hz 的频率，BIOS 在启动时设置为 18.2 Hz。当请求完成时，BIOS 会将 32 位结果返回到寄存器 `%cx` 和 `%dx`（低字节存储在 `%dx` 中）。此结果（即 `%dx` 部分）被复制到寄存器 `%di`，然后将 `TICKS` 变量的值加到 `%di` 中。该变量存储在 **boot0** 中，位于寄存器 `%bp`（指向 `0x800`）偏移 `_TICKS` 处（这是一个负值）。该变量的默认值是 `0xb6`（十进制 182）。此时，**boot0** 会不断请求 BIOS 获取时间，并且当寄存器 `%dx` 返回的值大于存储在 `%di` 中的值时，时间到期，将选择默认选项。由于 RTC 每秒滴答 18.2 次，因此此条件将在 10 秒后满足（这个默认行为可以在 **Makefile** 中更改）。在这段时间内，**boot0** 会不断通过 `int 0x16` 中断、在 `%ah` 中传递参数 `1` 来向 BIOS 查询用户输入。
 
-无论是按下了键，还是时间到期，接下来的代码都会验证选择。根据选择，寄存器 `%si` 会被设置为指向分区表中的相应条目。这个新的选择会覆盖先前的默认选择，实际上，它会成为新的默认选择。最后，选定分区的 ACTIVE 标志被设置。如果在编译时启用了该功能，带有这些修改值的 **boot0** 内存副本将被写回到磁盘上的 MBR。我们将此实现的细节留给读者。
+无论是按下了键，还是时间到期，接下来的代码都会验证选择。根据选择，将寄存器 `%si` 指向分区表中的相应条目。这个新的选择会覆盖先前的默认选择，实际上，它会成为新的默认选择。最后，选定分区的 ACTIVE 标志被设置。如果在编译时启用了该功能，带有这些修改值的 **boot0** 内存副本会写回到磁盘上的 MBR。我们将此实现的细节留给读者。
 
 最后，我们通过以下代码块结束对 **boot0** 程序的研究：
 
@@ -264,7 +266,7 @@ movw $LOAD,%bx		# 读取地址
 
 **boot1** 是引导加载序列中的下一步，它是三个引导阶段中的第一个。需要注意的是，我们一直在处理磁盘扇区。实际上，BIOS 加载了绝对的第一个扇区，而 **boot0** 加载了 FreeBSD 切片的第一个扇区。这两个加载都发生在地址 `0x7c00`。我们可以从概念上将这些磁盘扇区视为包含 **boot0** 和 **boot1** 的文件，但实际上对于 **boot1** 来说，这并不完全准确。严格来说，和 **boot0** 不同，**boot1** 并不是引导块的一部分 ^\[[3](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnotedef_3 "查看脚注")]^。相反，一个完整的文件 **boot**（即 **/boot/boot**）最终被写入磁盘。这个文件结合了 **boot1**、**boot2** 和 `Boot Extender`（或 BTX）。这个单一文件的大小大于单个扇区（大于 512 字节）。幸运的是，**boot1** 占据了这个文件的前 512 字节，因此当 **boot0** 加载 FreeBSD 切片的第一个扇区（512 字节）时，它实际上是加载了 **boot1** 并将控制权传递给它。
 
-**boot1** 的主要任务是加载下一个引导阶段。下一个阶段更加复杂，它由一个名为 "Boot Extender"（BTX）的服务器和一个名为 **boot2** 的客户端组成。正如我们将看到的，最后的引导阶段 **loader** 也是 BTX 服务器的一个客户端。
+**boot1** 的主要任务是加载下一个引导阶段。下一个阶段更加复杂，它由一个名为「Boot Extender」（BTX）的服务器和一个名为 **boot2** 的客户端组成。正如我们将看到的，最后的引导阶段 **loader** 也是 BTX 服务器的一个客户端。
 
 现在，让我们详细看看 **boot1** 做了什么，首先从它的入口点开始，就像我们分析 **boot0** 一样：
 
@@ -337,7 +339,7 @@ nread:
 
 **stand/i386/boot2/boot1.S**
 
-回想一下，`%si` 指向伪分区。偏移量 `0x8` 处的字^\[[5](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnotedef_5 "查看脚注")]^被复制到寄存器 `%ax`，偏移量 `0xa` 处的字被复制到 `%cx`。它们被 BIOS 解释为表示要读取的 LBA 的低 4 字节值（高四个字节假定为零）。寄存器 `%bx` 保存着 MBR 将被加载到的内存地址。将 `%cs` 压入堆栈这一指令非常有趣。在这种情况下，它没有实际效果。然而，正如我们稍后将看到的，**boot2** 与 BTX 服务器一起也使用了 `xread.1`。这一机制将在下一节讨论。
+回想一下，`%si` 指向伪分区。偏移量 `0x8` 处的字^\[[5](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnotedef_5 "查看脚注")]^被复制到寄存器 `%ax`，偏移量 `0xa` 处的字被复制到 `%cx`。它们被 BIOS 解释为表示要读取的 LBA 的低 4 字节值（高四个字节假定为零）。寄存器 `%bx` 保存着 MBR 要加载到的内存地址。将 `%cs` 压入堆栈这一指令非常有趣。在这种情况下，它没有实际效果。然而，正如我们稍后将看到的，**boot2** 与 BTX 服务器一起也使用了 `xread.1`。这一机制将在下一节讨论。
 
 `xread.1` 的代码进一步调用了 `read` 函数，实际上是向 BIOS 请求读取磁盘扇区：
 
@@ -535,7 +537,7 @@ boot2: boot2.ld
 
 回想一下，**boot1** 是被重新定位的（即，从 `0x7c00` 复制到 `0x700`）。这个重新定位现在变得有意义，因为正如我们将看到的，BTX 服务器回收了一些内存，包括原来 **boot1** 被加载的空间。然而，BTX 服务器需要访问 **boot1** 中的 `xread` 函数；根据 **boot2.h** 的输出，该函数位于地址 `0x725`。实际上，BTX 服务器正是从 **boot1** 被重新定位的代码中使用 `xread` 函数。这个函数现在可以从 **boot2** 客户端中访问。
 
-接下来的规则指导链接器链接多个文件（**ashldi3.o**、**boot2.o** 和 **sio.o**）。请注意，输出文件 **boot2.out** 被链接为在地址 `0x2000` 执行（\${ORG2}）。回想一下，**boot2** 将在用户模式下执行，在 BTX 服务器设置的特殊用户段中。这个段从 `0xa000` 开始。此外，记住 **boot2** 部分已经被复制到地址 `0xc000`，即从用户段的起始位置偏移了 `0x2000`，因此，当我们将控制权转交给它时，**boot2** 将能够正常工作。接下来，**boot2.bin** 是从 **boot2.out** 生成的，通过去除其符号和格式信息；**boot2.bin** 是一个 *原始* 二进制文件。现在，请注意，文件 **boot2.ldr** 是一个 512 字节的全零文件。这个空间预留给 bsdlabel。
+接下来的规则指导链接器链接多个文件（**ashldi3.o**、**boot2.o** 和 **sio.o**）。请注意，输出文件 **boot2.out** 被链接为在地址 `0x2000` 执行（\${ORG2}）。回想一下，**boot2** 将在用户模式下执行，在 BTX 服务器设置的特殊用户段中。这个段从 `0xa000` 开始。此外，记住 **boot2** 部分已被复制到地址 `0xc000`，即从用户段的起始位置偏移了 `0x2000`，因此，当我们将控制权转交给它时，**boot2** 将能够正常工作。接下来，**boot2.bin** 是从 **boot2.out** 生成的，通过去除其符号和格式信息；**boot2.bin** 是一个 *原始* 二进制文件。现在，请注意，文件 **boot2.ldr** 是一个 512 字节的全零文件。这个空间预留给 bsdlabel。
 
 现在，我们已经有了 **boot1**、**boot2.bin** 和 **boot2.ldr** 文件，剩下的就是 BTX 服务器，才能完成创建全功能 **boot** 文件的过程。BTX 服务器位于 **stand/i386/btx/btx**，它有自己的 **Makefile** 和一套构建规则。需要注意的是，BTX 服务器也是作为一个 *原始* 二进制文件编译的，并且它被链接到地址 `0x9000` 执行。详细信息可以在 **stand/i386/btx/btx/Makefile** 中找到。
 
@@ -739,7 +741,7 @@ init.9:		push $0x0			#  常规
 
 **stand/i386/btx/btx/btx.S**
 
-请注意，客户端的环境包括堆栈段选择符和堆栈指针（寄存器 `%ss` 和 `%esp`）。事实上，一旦用适当的堆栈段选择符加载 TR（指令 `ltr`），堆栈指针将被计算并与堆栈的段选择符一起推送到堆栈。接下来，值 `0x202` 被推送到堆栈，它是当控制权传递给客户端时，EFLAGS 寄存器将获得的值。此外，用户模式代码段选择符和客户端的入口点也被推送。请记住，这个入口点是在链接时通过 BTX 头文件进行修补的。最后，存储在寄存器 `%ecx` 中的段选择符（用于 `%gs, %fs, %ds` 和 `%es` 的段寄存器）也被推送到堆栈中，连同 `%edx` 中的值（`0xa000`）。请记住，已经推送到堆栈中的各种值（它们稍后将被弹出）。接下来，剩余的通用寄存器的值也被推送到堆栈中（注意 `loop` 指令，它推送了 7 次 `0`）。现在，值将开始从堆栈中弹出。首先，`popa` 指令从堆栈中弹出最近推送的 7 个值。它们按顺序存储在通用寄存器中，顺序为 `%edi, %esi, %ebp, %ebx, %edx, %ecx, %eax`。然后，推送的各种段选择符被弹出并复制到各个段寄存器中。堆栈中仍然剩下 5 个值。它们在执行 `iret` 指令时被弹出。该指令首先弹出 BTX 头文件推送的值。这个值是 **boot2** 的入口点指针，它被放置在寄存器 `%eip`（指令指针寄存器）中。接下来，用户代码段的段选择符被弹出并复制到寄存器 `%cs` 中。请记住，这个段的特权级是 3，即最低特权级。这意味着我们必须为这个特权级的堆栈提供值。这就是为什么处理器除了进一步弹出 EFLAGS 寄存器的值之外，还会从堆栈中弹出两个值。这些值被放入堆栈指针（`%esp`）和堆栈段（`%ss`）中。现在，执行控制权将继续在 `boot0` 的入口点。
+请注意，客户端的环境包括堆栈段选择符和堆栈指针（寄存器 `%ss` 和 `%esp`）。事实上，一旦用适当的堆栈段选择符加载 TR（指令 `ltr`），堆栈指针会计算并与堆栈的段选择符一起推送到堆栈。接下来，值 `0x202` 被推送到堆栈，它是当控制权传递给客户端时，EFLAGS 寄存器将获得的值。此外，用户模式代码段选择符和客户端的入口点也被推送。请记住，这个入口点是在链接时通过 BTX 头文件进行修补的。最后，存储在寄存器 `%ecx` 中的段选择符（用于 `%gs, %fs, %ds` 和 `%es` 的段寄存器）也被推送到堆栈中，连同 `%edx` 中的值（`0xa000`）。请记住，已经推送到堆栈中的各种值（它们稍后会弹出）。接下来，剩余的通用寄存器的值也被推送到堆栈中（注意 `loop` 指令，它推送了 7 次 `0`）。现在，值将开始从堆栈中弹出。首先，`popa` 指令从堆栈中弹出最近推送的 7 个值。它们按顺序存储在通用寄存器中，顺序为 `%edi, %esi, %ebp, %ebx, %edx, %ecx, %eax`。然后，推送的各种段选择符被弹出并复制到各个段寄存器中。堆栈中仍然剩下 5 个值。它们在执行 `iret` 指令时被弹出。该指令首先弹出 BTX 头文件推送的值。这个值是 **boot2** 的入口点指针，它被放置在寄存器 `%eip`（指令指针寄存器）中。接下来，用户代码段的段选择符被弹出并复制到寄存器 `%cs` 中。请记住，这个段的特权级是 3，即最低特权级。这意味着我们必须为这个特权级的堆栈提供值。这就是为什么处理器除了进一步弹出 EFLAGS 寄存器的值之外，还会从堆栈中弹出两个值。这些值被放入堆栈指针（`%esp`）和堆栈段（`%ss`）中。现在，执行控制权将继续在 `boot0` 的入口点。
 
 需要注意的是，用户代码段的定义。该段的 *基地址* 设置为 `0xa000`。这意味着代码内存地址是 *相对于* 地址 `0xa000` 的；如果正在执行的代码从地址 `0x2000` 获取，*实际* 地址将是 `0xa000+0x2000=0xc000`。
 
@@ -879,7 +881,7 @@ sys/i386/i386/mpboot.s:
 mp_begin:	/* 现在重定位运行在 KERNBASE */
 ```
 
-`init386()` 函数被调用时，参数是指向第一个空闲物理页的指针，之后调用 `mi_startup()`。`init386()` 是一个与架构相关的初始化函数，而 `mi_startup()` 是一个与架构无关的函数（'mi\_' 前缀表示与机器无关）。内核在调用 `mi_startup()` 后不会再返回，且通过调用它，内核完成了引导：
+`init386()` 函数被调用时，参数是指向第一个空闲物理页的指针，之后调用 `mi_startup()`。`init386()` 是一个与架构相关的初始化函数，而 `mi_startup()` 是一个与架构无关的函数（`mi_` 前缀表示与机器无关）。内核在调用 `mi_startup()` 后不会再返回，且通过调用它，内核完成了引导：
 
 ```asm
 sys/i386/i386/locore.s:
@@ -1098,7 +1100,7 @@ Idx Name                               Size     VMA      Type
 
 这段输出显示 `set.sysinit_set` 的大小是 0x14d8 字节，因此 `0x14d8/sizeof(void *)` 个 sysinit 对象被编译进内核。其他段如 `set.sysctl_set` 表示其他链接器集。
 
-通过定义一个类型为 `struct sysinit` 的变量，`set.sysinit_set` 段的内容将被“收集”到该变量中：
+通过定义一个类型为 `struct sysinit` 的变量，可将 `set.sysinit_set` 段的内容“收集”到该变量中：
 
 ```c
 sys/kern/init_main.c:

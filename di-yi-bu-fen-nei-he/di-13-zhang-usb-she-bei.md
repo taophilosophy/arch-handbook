@@ -15,9 +15,9 @@
 
 USB 子系统及其连接设备的驱动程序开发得到了已制定和将制定的规格的支持。这些规格可从 USB 网站公开获取。苹果公司在推动基于标准的驱动程序方面做得非常好，提供了他们操作系统 MacOS 中用于通用类设备的驱动程序，并且不鼓励为每个新设备使用单独的驱动程序。本章试图汇总一些基本的 USB 2.0 实现栈在 FreeBSD/NetBSD 中的关键信息。然而，建议将其与相关的 2.0 规格和其他开发者资源一起阅读：
 
-* USB 2.0 规格（[http://www.usb.org/developers/docs/usb20\_docs/](http://www.usb.org/developers/docs/usb20_docs/)）
+* USB 2.0 规格（[http://www.usb.org/developers/docs/usb20_docs/](http://www.usb.org/developers/docs/usb20_docs/)）
 * 通用主机控制器接口（UHCI）规格（[ftp://ftp.netbsd.org/pub/NetBSD/misc/blymn/uhci11d.pdf](ftp://ftp.netbsd.org/pub/NetBSD/misc/blymn/uhci11d.pdf)）
-* 开放主机控制器接口（OHCI）规格（[ftp://ftp.compaq.com/pub/supportinformation/papers/hcir1\_0a.pdf](ftp://ftp.compaq.com/pub/supportinformation/papers/hcir1_0a.pdf)）
+* 开放主机控制器接口（OHCI）规格（[ftp://ftp.compaq.com/pub/supportinformation/papers/hcir1_0a.pdf](ftp://ftp.compaq.com/pub/supportinformation/papers/hcir1_0a.pdf)）
 * USB 网站的开发者部分（[http://www.usb.org/developers/](http://www.usb.org/developers/)）
 
 ### 13.1.1. USB 栈的结构
@@ -83,7 +83,7 @@ UHCI 主机控制器维护一个帧列表，其中包含 1024 个指向每帧数
 
 如果通过管道的传输大于关联的端点描述符中指定的最大数据包大小，主机控制器（OHCI）或主机控制器驱动程序（UHCI）将把传输拆分成最大数据包大小的多个数据包，最后一个数据包的大小可能小于最大数据包大小。
 
-有时，设备返回的数据少于请求的数据量并不是问题。例如，向调制解调器进行的批量输入传输可能请求 200 字节的数据，但调制解调器在那个时刻只有 5 字节的数据可用。驱动程序可以设置短数据包（SPD）标志。这允许主机控制器接受一个数据包，即使传输的数据量少于请求的数据量。此标志仅对输入传输有效，因为发送到设备的数据量始终是预先知道的。如果在设备传输过程中发生无法恢复的错误，管道将被停止。在接受或发送更多数据之前，驱动程序需要解决停止的原因，并通过默认管道发送清除端点停止设备请求来清除端点的停止条件。默认端点不应停止。
+有时，设备返回的数据少于请求的数据量并不是问题。例如，向调制解调器进行的批量输入传输可能请求 200 字节的数据，但调制解调器在那个时刻只有 5 字节的数据可用。驱动程序可以设置短数据包（SPD）标志。这允许主机控制器接受一个数据包，即使传输的数据量少于请求的数据量。此标志仅对输入传输有效，因为发送到设备的数据量始终是预先知道的。如果在设备传输过程中发生无法恢复的错误，管道会停止。在接受或发送更多数据之前，驱动程序需要解决停止的原因，并通过默认管道发送清除端点停止设备请求来清除端点的停止条件。默认端点不应停止。
 
 有四种不同类型的端点及其对应的管道：
 
