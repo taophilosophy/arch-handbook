@@ -1197,7 +1197,7 @@ static char init_path[MAXPATHLEN] =
 
 [2](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnoteref_2). 如果有疑问，我们建议读者参考官方的 Intel 手册，手册中详细描述了每条指令的语义。
 
-[3](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnoteref_3). 有一个文件 /boot/boot1，但它并不会写入到 FreeBSD 切片的开头。相反，它与 boot2 拼接在一起，形成 boot，这个 boot 会被写入 FreeBSD 切片的开头，并在启动时读取。
+[3](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnoteref_3). 有一个文件 /boot/boot1，但它并不会写入到 FreeBSD 切片的开头。相反，它与 boot2 拼接在一起，形成 boot，这个 boot 会写入 FreeBSD 切片的开头，并在启动时读取。
 
 [4](https://docs.freebsd.org/en/books/arch-handbook/boot/#_footnoteref_4). 实际上，我们将指向切片条目的指针传递到了寄存器 %si 中。然而，boot1 并不假设它是由 boot0 加载的（也许是其他 MBR 加载了它，并且没有传递这个信息），因此它什么也不假设。
 

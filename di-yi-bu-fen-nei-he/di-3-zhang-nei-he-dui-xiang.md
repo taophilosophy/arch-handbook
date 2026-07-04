@@ -73,7 +73,7 @@ KOBJMETHOD(NAME, FUNC)
 
 在这个模板中使用以下关键字：`#include`、`INTERFACE`、`CODE`、`EPILOG`、`HEADER`、`METHOD`、`PROLOG`、`STATICMETHOD` 和 `DEFAULT`。
 
-`#include` 语句及其后面的内容会被原样复制到生成的代码文件的开头。
+`#include` 语句及其后面的内容会原样复制到生成的代码文件的开头。
 
 例如：
 
