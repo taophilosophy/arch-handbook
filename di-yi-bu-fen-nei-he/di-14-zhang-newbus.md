@@ -124,7 +124,7 @@ int FOO_DOIT_TO_CHILD(device_t dev, device_t child);
 
 `driver_t` - 这是引用 `struct driver` 的类型定义。`driver` 结构是 `device` 内核对象的一种类；它还保存驱动程序的私有数据。
 
-***driver\_t* 实现**
+**`driver_t` 实现**
 
 ```c
 struct driver {
@@ -133,9 +133,9 @@ struct driver {
 	  };
 ```
 
-`device_state_t` 类型，它是一个枚举，表示 Newbus 设备在自动配置过程前后的可能状态。
+`device_state_t` 类型，它是一个枚举 `device_state`。它包含 Newbus 设备在自动配置过程前后的可能状态。
 
-**设备状态 \_device\_state\_t**
+**设备状态 `device_state_t`**
 
 ```c
 /*
