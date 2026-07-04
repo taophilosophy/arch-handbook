@@ -1,10 +1,10 @@
 # 第 11 章 PCI 设备
 
-本章将介绍 FreeBSD 在 PCI 总线上编写设备驱动程序的机制。
+本章将介绍 FreeBSD 为 PCI 总线上的设备编写设备驱动程序的机制。
 
 ## 11.1. 探测与附加
 
-这里介绍了 PCI 总线代码如何遍历未附加的设备，并查看新加载的 kld 是否会附加到它们中的任何一个。
+这里介绍了 PCI 总线代码如何遍历未附加的设备，并查看新加载的 kld 是否会附加到其中任何一个。
 
 ### 11.1.1. 示例驱动程序源代码 (**mypci.c**)
 
@@ -118,7 +118,7 @@ mypci_probe(device_t dev)
 	    pci_get_vendor(dev), pci_get_device(dev));
 
 	if (pci_get_vendor(dev) == 0x11c1) {
-		printf("我们得到了 Winmodem，探测成功！\n");
+		printf("检测到 Winmodem，探测成功！\n");
 		device_set_desc(dev, "WinModem");
 		return (BUS_PROBE_DEFAULT);
 	}
@@ -163,7 +163,7 @@ mypci_detach(device_t dev)
 	return (0);
 }
 
-/* 系统关闭时调用，先同步后执行。 */
+/* 在系统关闭期间，同步之后调用。 */
 
 static int
 mypci_shutdown(device_t dev)
@@ -215,7 +215,7 @@ DRIVER_MODULE(mypci, pci, mypci_driver, mypci_devclass, 0, 0);
 
 ### 11.1.2. 示例驱动程序的 **Makefile**
 
-```c
+```make
 # mypci 驱动程序的 Makefile
 
 KMOD=	mypci
@@ -243,7 +243,7 @@ FreeBSD 提供了一种面向对象的机制，用于从父总线请求资源。
 例如，一个典型的驱动程序可能在 `attach()` 函数中包含如下代码：
 
 ```c
-sc->bar0id = PCIR_BAR(0);
+    sc->bar0id = PCIR_BAR(0);
     sc->bar0res = bus_alloc_resource(dev, SYS_RES_MEMORY, &sc->bar0id,
 				  0, ~0, 1, RF_ACTIVE);
     if (sc->bar0res == NULL) {
@@ -268,7 +268,7 @@ sc->bar0id = PCIR_BAR(0);
 
 每个基地址寄存器的句柄保存在 `softc` 结构中，以便稍后用于写入设备。
 
-这些句柄可以用来通过 `bus_space_*` 函数从设备寄存器读取或写入。例如，驱动程序可能包含一个简化函数，用于从特定寄存器读取数据，如下所示：
+这些句柄可以用来通过 `bus_space_*` 函数读取或写入设备寄存器。例如，驱动程序可能包含一个简化函数，用于从板卡特定寄存器读取数据，如下所示：
 
 ```c
 uint16_t
@@ -294,7 +294,7 @@ board_write(struct ni_softc *sc, uint16_t address, uint16_t value)
 >
 >在 FreeBSD 7.0 及更高版本中，你可以使用 `bus_*` 函数来代替 `bus_space_*` 函数。`bus_*` 函数使用 `struct resource *` 指针，而不是总线标签和总线句柄。因此，你可以删除 `softc` 结构中的总线标签和总线句柄成员，并将 `board_read()` 函数重写为：
 >
->```sh
+>```c
 >uint16_t
 >board_read(struct ni_softc *sc, uint16_t address)
 >{
@@ -306,7 +306,7 @@ board_write(struct ni_softc *sc, uint16_t address, uint16_t value)
 
 中断从面向对象的总线代码中以类似于内存资源的方式分配。首先，必须从父总线分配一个 IRQ 资源，然后必须设置中断处理程序来处理这个 IRQ。
 
-以下是来自设备 `attach()` 函数的一个示例，它比文字更能说明问题。
+同样，来自设备 `attach()` 函数的一个示例比文字更能说明问题。
 
 ```c
 /* 获取 IRQ 资源 */
@@ -330,13 +330,13 @@ board_write(struct ni_softc *sc, uint16_t address, uint16_t value)
     }
 ```
 
-在驱动程序的 `detach` 例程中必须特别小心。你必须使设备的中断流保持安静，并移除中断处理程序。一旦 `bus_teardown_intr()` 返回，你就可以确定中断处理程序将不再被调用，且所有可能正在执行此中断处理程序的线程都已返回。由于此函数可以休眠，因此在调用此函数时，你不能持有任何互斥锁。
+在驱动程序的 `detach` 例程中必须特别小心。你必须使设备的中断流平息，并移除中断处理程序。一旦 `bus_teardown_intr()` 返回，你就可以确定中断处理程序将不再被调用，且所有可能正在执行此中断处理程序的线程都已返回。由于此函数可以休眠，因此在调用此函数时，你不能持有任何互斥锁。
 
 ### 11.2.3. DMA
 
-此部分已过时，仅供历史参考。正确的方法是使用 `bus_space_dma*()` 函数来处理这些问题。该段内容可以在更新为反映这些用法时删除。然而，目前，API 仍在变化中，因此一旦稳定下来，最好更新此部分以反映相关用法。
+此部分已过时，仅供历史参考。正确的方法是使用 `bus_space_dma*()` 函数来处理这些问题。当本节更新以反映这种用法时，可以删除此段落。然而，目前 API 仍在变化中，因此一旦稳定下来，最好更新此部分以反映相关用法。
 
-在 PC 上，想要进行总线主控 DMA 的外设必须处理物理地址。这个问题在于 FreeBSD 使用虚拟内存并几乎完全处理虚拟地址。幸运的是，存在一个名为 `vtophys()` 的函数来帮助解决这个问题。
+在 PC 上，想要进行总线主控 DMA 的外设必须处理物理地址。这是一个问题，因为 FreeBSD 使用虚拟内存，并且几乎完全处理虚拟地址。幸运的是，存在一个名为 `vtophys()` 的函数来帮助解决这个问题。
 
 ```c
 #include <vm/vm.h>
@@ -357,4 +357,4 @@ board_write(struct ni_softc *sc, uint16_t address, uint16_t value)
 
 ### 11.2.4. 资源的释放
 
-在 `attach()` 过程中分配的所有资源必须在驱动程序卸载时释放。即使在发生失败条件时，也必须小心地释放正确的资源，以确保系统在驱动程序退出时仍然可用。
+释放所有在 `attach()` 过程中分配的资源非常重要。即使在失败情况下，也必须小心释放正确的资源，以确保系统在驱动程序崩溃时仍然可用。

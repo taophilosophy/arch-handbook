@@ -1,6 +1,13 @@
 # Table of contents
 
-* [FreeBSD 架构手册翻译项目](README.md)
+* [FreeBSD 架构手册](README.md)
+
+***
+
+* [目录](mu-lu.md)
+
+***
+
 * [商标](shang-biao.md)
 * [概述](gai-shu.md)
 
@@ -14,6 +21,9 @@
 * [第 6 章 TrustedBSD MAC 框架](di-yi-bu-fen-nei-he/di-6-zhang-trustedbsd-mac-kuang-jia.md)
 * [第 7 章 虚拟内存系统](di-yi-bu-fen-nei-he/di-7-zhang-xu-ni-nei-cun-xi-tong.md)
 * [第 8 章 SMPng 设计文档](di-yi-bu-fen-nei-he/di-8-zhang-smpng-she-ji-wen-dang.md)
+
+## 第二部分 设备驱动程序
+
 * [第 9 章 编写 FreeBSD 设备驱动程序](di-yi-bu-fen-nei-he/di-9-zhang-bian-xie-freebsd-she-bei-qu-dong-cheng-xu.md)
 * [第 10 章 ISA 设备驱动程序](di-yi-bu-fen-nei-he/di-10-zhang-isa-she-bei-qu-dong-cheng-xu.md)
 * [第 11 章 PCI 设备](di-yi-bu-fen-nei-he/di-11-zhang-pci-she-bei.md)
@@ -23,6 +33,6 @@
 * [第 15 章 声音子系统](di-yi-bu-fen-nei-he/di-15-zhang-sheng-yin-zi-xi-tong.md)
 * [第 16 章 PC 卡](di-yi-bu-fen-nei-he/di-16-zhang-pc-ka.md)
 
-## 第二部分 附录
+## 第三部分 附录
 
 * [参考文献](di-er-bu-fen-fu-lu/can-kao-wen-xian.md)
