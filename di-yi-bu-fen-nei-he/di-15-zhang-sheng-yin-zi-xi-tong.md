@@ -2,7 +2,7 @@
 
 ## 15.1. 介绍
 
-FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题分开，这使得为新硬件添加支持变得更容易。
+FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题清晰地区分，这使得为新硬件添加支持变得更容易。
 
 [pcm(4)](https://man.freebsd.org/cgi/man.cgi?query=pcm&sektion=4&format=html) 框架是声音子系统的核心部分。它主要实现以下几个元素：
 
@@ -13,9 +13,9 @@ FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题分
 
 特定声音卡的支持由硬件特定的驱动程序实现，这些驱动程序提供通道和混音器接口，以便接入通用的 **pcm** 代码。
 
-在本章中，**pcm** 术语将指代声音驱动程序的核心通用部分，而不是硬件特定的模块。
+在本章中，术语 **pcm** 将指代声音驱动程序的核心通用部分，而不是硬件特定的模块。
 
-预计的驱动程序编写者当然希望从现有模块开始，并使用代码作为最终参考。尽管声音代码整洁且清晰，但它也几乎没有注释。本文档尝试概述框架接口，并回答在适配现有代码时可能出现的一些问题。
+有志于编写驱动程序的人当然希望从现有模块开始，并使用代码作为最终参考。尽管声音代码整洁且清晰，但它也几乎没有注释。本文档尝试概述框架接口，并回答在适配现有代码时可能出现的一些问题。
 
 作为替代方案，或者作为对现有示例的补充，你可以在 [https://people.FreeBSD.org/\~cg/template.c](https://people.FreeBSD.org/~cg/template.c) 上找到一个带注释的驱动程序模板。
 
@@ -53,7 +53,7 @@ FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题分
 有两种处理非 PnP 设备的方法：
 
 * 使用 `device_identify()` 方法（例如：**sound/isa/es1888.c**）。`device_identify()` 方法在已知地址探测硬件，如果发现受支持的设备，则创建一个新的 pcm 设备，并将其传递给探测/附加过程。
-* 使用带有适当提示的自定义内核配置（例如：**sound/isa/mss.c**）。
+* 使用带有适用于 pcm 设备提示的自定义内核配置（例如：**sound/isa/mss.c**）。
 
 **pcm** 驱动程序应实现 `device_suspend`、`device_resume` 和 `device_shutdown` 例程，以便电源管理和模块卸载能够正常工作。
 
@@ -63,7 +63,7 @@ FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题分
 
 声音驱动通常会提供两个主要接口：*CHANNEL* 和 *MIXER* 或 *AC97*。
 
-*AC97* 接口是一个非常小的硬件访问（寄存器读写）接口，适用于具有 AC97 编解码器的硬件驱动。在这种情况下，实际的 MIXER 接口是由 **pcm** 中共享的 AC97 代码提供的。
+*AC97* 接口是一个非常小的硬件访问（寄存器读写）接口，由带有 AC97 编解码器的硬件驱动程序实现。在这种情况下，实际的 MIXER 接口是由 **pcm** 中共享的 AC97 代码提供的。
 
 ### 15.4.1. CHANNEL 接口
 
@@ -85,13 +85,13 @@ FreeBSD 的声音子系统将通用的声音处理问题与设备特定问题分
 
 播放时，一般的传输机制如下（录音时则反向操作）：
 
-* **pcm** 首先填充缓冲区，然后调用声音驱动的 [`xxxchannel_trigger()`](https://docs.freebsd.org/en/books/arch-handbook/sound/#channel-trigger) 函数，参数为 PCMTRIG\_START。
-* 然后，声音驱动将整个内存区域（`sndbuf_getbuf()`，`sndbuf_getsize()`）以 `sndbuf_getblksz()` 字节为单位重复传输到设备。对于每个传输的块，它会回调 `chn_intr()`pcm 函数（通常在中断时发生）。
+* **pcm** 首先填充缓冲区，然后调用声音驱动的 [`xxxchannel_trigger()`](https://docs.freebsd.org/en/books/arch-handbook/sound/#channel-trigger) 函数，参数为 `PCMTRIG_START`。
+* 然后，声音驱动将整个内存区域（`sndbuf_getbuf()`，`sndbuf_getsize()`）以 `sndbuf_getblksz()` 字节为单位重复传输到设备。对于每个传输的块，它会回调 **pcm** 的 `chn_intr()` 函数（通常在中断时发生）。
 * `chn_intr()` 会将新数据复制到已传输到设备的区域（现在为空闲），并对 `snd_dbuf` 结构进行适当的更新。
 
 #### 15.4.1.3. channel\_init
 
-`xxxchannel_init()` 用于初始化每个播放或录音通道。该调用由声音驱动的 attach 例程发起。（参见 crossref\:sound）。
+`xxxchannel_init()` 用于初始化每个播放或录音通道。该调用由声音驱动的附加例程发起。（参见[探测和附加章节](https://docs.freebsd.org/en/books/arch-handbook/sound/#pcm-probe-and-attach)）。
 
 ```c
 static void *
@@ -198,7 +198,7 @@ struct pcmchan_caps *
 
 #### 15.4.1.11. 更多函数
 
-`channel_reset()`、`channel_resetdone()` 和 `channel_notify()` 是特殊用途的函数，应该在不讨论的情况下不要在驱动程序中实现，建议通过 [FreeBSD 多媒体邮件列表](https://lists.freebsd.org/subscription/freebsd-multimedia)讨论。
+`channel_reset()`、`channel_resetdone()` 和 `channel_notify()` 是特殊用途的函数，不应在未经讨论的情况下在驱动程序中实现；讨论应在 [FreeBSD 多媒体邮件列表](https://lists.freebsd.org/subscription/freebsd-multimedia) 上进行。
 
 `channel_setdir()` 已弃用。
 
@@ -241,11 +241,11 @@ static int
           {
               struct sc_info *sc = mix_getdevinfo(m);
               [设置音量级别]
-              return left | (right << 8); 燃堂
+              return left | (right << 8); ②
           }
 ```
 
-* ① 设备由 `SOUND_MIXER_XXX` 值指定。音量值的范围是 \[0-100]。值为零时应该静音设备。
+* ① 设备由 `SOUND_MIXER_XXX` 值指定。音量值的范围是 [0-100]。值为零时应该静音设备。
 * ② 由于硬件级别可能与输入比例不匹配，并且可能会发生一些四舍五入，函数返回实际的音量级别（范围为 0-100）。
 
 #### 15.4.2.3. mixer\_setrecsrc
