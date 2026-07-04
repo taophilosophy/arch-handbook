@@ -47,7 +47,7 @@ skel_loader(struct module *m, int what, void *arg)
 		uprintf("Skeleton KLD 已加载。\n");
 		break;
 	case MOD_UNLOAD:
-		uprintf("Skeleton KLD 卸载。\n");
+		uprintf("Skeleton KLD 已卸载。\n");
 		break;
 	default:
 		err = EOPNOTSUPP;
@@ -69,7 +69,7 @@ DECLARE_MODULE(skeleton, skel_mod, SI_SUB_KLD, SI_ORDER_ANY);
 
 ### 9.2.1. Makefile
 
-FreeBSD 提供了一个系统 Makefile 来简化编译内核模块。
+FreeBSD 提供了系统 Makefile 来简化编译内核模块。
 
 ```c
 SRCS=skeleton.c
@@ -78,7 +78,7 @@ KMOD=skeleton
 .include <bsd.kmod.mk>
 ```
 
-使用此 Makefile 运行 `make` 将生成一个文件 **skeleton.ko**，可以通过以下命令将其加载到内核中：
+使用此 Makefile 运行 `make` 将生成文件 **skeleton.ko**，可以通过以下命令将其加载到内核中：
 
 ```sh
 # kldload -v ./skeleton.ko
