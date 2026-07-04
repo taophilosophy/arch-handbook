@@ -1,10 +1,10 @@
 # 第 11 章 PCI 设备
 
-本章将介绍 FreeBSD 在 PCI 总线上编写设备驱动程序的机制。
+本章将介绍 FreeBSD 为 PCI 总线上的设备编写设备驱动程序的机制。
 
 ## 11.1. 探测与附加
 
-这里介绍了 PCI 总线代码如何遍历未附加的设备，并查看新加载的 kld 是否会附加到它们中的任何一个。
+这里介绍了 PCI 总线代码如何遍历未附加的设备，并查看新加载的 kld 是否会附加到其中任何一个。
 
 ### 11.1.1. 示例驱动程序源代码 (**mypci.c**)
 
@@ -118,7 +118,7 @@ mypci_probe(device_t dev)
 	    pci_get_vendor(dev), pci_get_device(dev));
 
 	if (pci_get_vendor(dev) == 0x11c1) {
-		printf("我们得到了 Winmodem，探测成功！\n");
+		printf("检测到 Winmodem，探测成功！\n");
 		device_set_desc(dev, "WinModem");
 		return (BUS_PROBE_DEFAULT);
 	}
@@ -163,7 +163,7 @@ mypci_detach(device_t dev)
 	return (0);
 }
 
-/* 系统关闭时调用，先同步后执行。 */
+/* 在系统关闭期间，同步之后调用。 */
 
 static int
 mypci_shutdown(device_t dev)
@@ -268,7 +268,7 @@ sc->bar0id = PCIR_BAR(0);
 
 每个基地址寄存器的句柄保存在 `softc` 结构中，以便稍后用于写入设备。
 
-这些句柄可以用来通过 `bus_space_*` 函数从设备寄存器读取或写入。例如，驱动程序可能包含一个简化函数，用于从特定寄存器读取数据，如下所示：
+这些句柄可以用来通过 `bus_space_*` 函数读取或写入设备寄存器。例如，驱动程序可能包含一个简化函数，用于从板卡特定寄存器读取数据，如下所示：
 
 ```c
 uint16_t
