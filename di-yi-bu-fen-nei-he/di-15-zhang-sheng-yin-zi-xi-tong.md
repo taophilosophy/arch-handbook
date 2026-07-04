@@ -272,9 +272,9 @@ static int
 
 `xxxmixer_uninit()` 应确保所有声音被静音，并且如果可能，混音器硬件应该关闭电源。
 
-`xxxmixer_reinit()` 应确保混音器硬件重新启动，并恢复任何未通过 `mixer_set()` 或 `mixer_setrecsrc()` 控制的设置。
+`xxxmixer_reinit()` 应确保混音器硬件已通电，并恢复任何未通过 `mixer_set()` 或 `mixer_setrecsrc()` 控制的设置。
 
-### 15.4.3. The AC97 Interface
+### 15.4.3. AC97 接口
 
 *AC97* 接口由带有 AC97 编解码器的驱动程序实现。它只有三个方法：
 
