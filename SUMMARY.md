@@ -1,6 +1,13 @@
 # Table of contents
 
-* [FreeBSD 架构手册翻译项目](README.md)
+* [FreeBSD 架构手册](README.md)
+
+***
+
+* [目录](mu-lu.md)
+
+***
+
 * [商标](shang-biao.md)
 * [概述](gai-shu.md)
 
