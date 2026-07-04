@@ -4,23 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 仓库概览
 
-这是 FreeBSD 官方手册（FreeBSD Handbook）的中文翻译项目。基于 GitBook 格式，发布在 <https://handbook.bsdcn.org>。
+这是 FreeBSD 官方手册（FreeBSD Handbook）的中文翻译项目。
 
 源内容为 Markdown 文件，由 GitBook 平台自动构建和部署，无需本地构建步骤。
 
 ## 版本与流程
 
+如果当前 en 文件夹为空，才执行以下步骤。
+
 流程：拉取 git 项目（注意，因为部分文件存在英文冒号，在 Windows 下无法拉取，需要下载 zip 压缩包）：https://github.com/freebsd/freebsd-doc
 
 当前翻译 git 版本：93d98e91f6bfaacd7fae40dd398efe47d44f085b
 
-路径：**documentation/content/en/books/handbook**
+路径：**documentation/content/en/books/**
 
-将 **documentation/content/en/books/handbook** 文件夹内的内容完全复制到 en 路径下，然后进行比较翻译。
+将 **documentation/content/en/books/** 文件夹内的内容完全复制到 en 路径下，然后进行比较翻译。
 
 最后更新本文中的相关信息（如翻译 git 版本）。
 
-需要进一步核查时，才参考 <https://docs.freebsd.org/en/books/handbook/book/>。
+需要进一步核查时，才参考 <https://docs.freebsd.org/en/books/。
 
 ## 内容架构
 
