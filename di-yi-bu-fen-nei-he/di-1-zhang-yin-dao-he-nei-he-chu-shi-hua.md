@@ -745,15 +745,15 @@ init.9:		push $0x0			#  常规
 
 ## 1.7. boot2 阶段
 
-`boot2` 定义了一个重要的结构体，`struct bootinfo`。这个结构体由 `boot2` 初始化并传递给加载器，随后加载器再传递给内核。这个结构体的部分节点由 `boot2` 设置，其他部分则由加载器设置。该结构体包含了许多信息，例如内核文件名、BIOS 硬盘几何信息、引导设备的 BIOS 驱动器编号、可用的物理内存、`envp` 指针等。其定义如下：
+`boot2` 定义了重要的结构体 `struct bootinfo`。`boot2` 初始化该结构体并传递给加载器，加载器再将其传递给内核。该结构体的部分节点由 `boot2` 设置，其余节点由加载器设置。该结构体包含许多信息，包括内核文件名、BIOS 硬盘几何信息、引导设备的 BIOS 驱动器编号、可用的物理内存、`envp` 指针等。其定义如下：
 
 ```c
 /usr/include/machine/bootinfo.h:
 struct bootinfo {
 	u_int32_t	bi_version;
-	u_int32_t	bi_kernelname;		/* 表示一个 char * */
+	u_int32_t	bi_kernelname;		/* 表示 char * */
 	u_int32_t	bi_nfs_diskless;	/* struct nfs_diskless * */
-				/* 总是存在的字段结束。 */
+				/* 始终存在的字段到此结束 */
 #define	bi_endcommon	bi_n_bios_used
 	u_int32_t	bi_n_bios_used;
 	u_int32_t	bi_bios_geom[N_BIOS_GEOM];
@@ -765,14 +765,14 @@ struct bootinfo {
 	u_int32_t	bi_extmem;
 	u_int32_t	bi_symtab;		/* struct symtab * */
 	u_int32_t	bi_esymtab;		/* struct symtab * */
-				/* 仅由高级引导加载器设置的项目 */
+				/* 以下项目仅来自高级引导加载器 */
 	u_int32_t	bi_kernend;		/* 内核空间结束位置 */
 	u_int32_t	bi_envp;		/* 环境变量 */
 	u_int32_t	bi_modulep;		/* 预加载的模块 */
 };
 ```
 
-`boot2` 进入一个无限循环，等待用户输入，然后调用 `load()`。如果用户没有按任何键，循环会在超时后中断，接着 `load()` 会加载默认文件（**/boot/loader**）。`ino_t lookup(char *filename)` 和 `int xfsread(ino_t inode, void *buf, size_t nbyte)` 函数用于将文件的内容读取到内存中。**/boot/loader** 是一个 ELF 二进制文件，但在 ELF 头部之前有一个 **a.out** 的 `struct exec` 结构。`load()` 扫描加载器的 ELF 头部，将 **/boot/loader** 的内容加载到内存，并将执行权传递给加载器的入口点：
+`boot2` 进入无限循环，等待用户输入，然后调用 `load()`。如果用户没有按任何键，循环会在超时后中断，接着 `load()` 会加载默认文件（**/boot/loader**）。`ino_t lookup(char *filename)` 和 `int xfsread(ino_t inode, void *buf, size_t nbyte)` 函数用于将文件的内容读取到内存中。**/boot/loader** 是 ELF 二进制文件，但其 ELF 头部前置了 **a.out** 的 `struct exec` 结构。`load()` 扫描加载器的 ELF 头部，将 **/boot/loader** 的内容加载到内存，并将执行权传递给加载器的入口点：
 
 ```c
 stand/i386/boot2/boot2.c:
@@ -783,7 +783,7 @@ stand/i386/boot2/boot2.c:
 
 ## 1.8. loader 阶段
 
-loader 也是一个 BTX 客户端。这里我不再详细描述它，Mike Smith 写的详细手册 [loader(8)](https://man.freebsd.org/cgi/man.cgi?query=loader&sektion=8&format=html) 可以提供更多信息。上面已经讨论了底层机制和 BTX。
+loader 也是一个 BTX 客户端。这里不再详细描述它，Mike Smith 编写了一份详尽的手册页 [loader(8)](https://man.freebsd.org/cgi/man.cgi?query=loader&sektion=8&format=html)。上面已经讨论了底层机制和 BTX。
 
 loader 的主要任务是引导内核。当内核被加载到内存中后，loader 会调用内核：
 
@@ -797,7 +797,7 @@ stand/common/boot.c:
 
 让我们看看链接内核的命令。这将帮助我们确定加载器将执行权传递给内核的确切位置。这个位置就是内核的实际入口点。这个命令现在已经从 **sys/conf/Makefile.i386** 中移除。我们感兴趣的内容可以在 **/usr/obj/usr/src/i386.i386/sys/GENERIC/** 中找到。
 
-```c
+```sh
 /usr/obj/usr/src/i386.i386/sys/GENERIC/kernel.meta:
 ld -m elf_i386_fbsd -Bdynamic -T /usr/src/sys/conf/ldscript.i386 --build-id=sha1 --no-warn-mismatch \
 --warn-common --export-dynamic  --dynamic-linker /red/herring -X -o kernel locore.o
@@ -806,14 +806,14 @@ ld -m elf_i386_fbsd -Bdynamic -T /usr/src/sys/conf/ldscript.i386 --build-id=sha1
 
 这里可以看到几个有趣的事情。首先，内核是一个 ELF 动态链接的二进制文件，但内核的动态链接器是 **/red/herring**，这显然是一个虚假的文件。其次，查看文件 **sys/conf/ldscript.i386** 可以了解到在编译内核时使用的 ld 选项。读完前几行后，可以看到字符串
 
-```c
+```sh
 sys/conf/ldscript.i386:
 ENTRY(btext)
 ```
 
 这表明内核的入口点是符号 `btext`。这个符号在 **locore.s** 中定义：
 
-```c
+```asm
 sys/i386/i386/locore.s:
 	.text
 /**********************************************************************
@@ -840,9 +840,9 @@ sys/i386/i386/locore.s:
 	mov	%ax, %gs
 ```
 
-btext 调用了 **locore.s** 中定义的 `recover_bootinfo()` 和 `identify_cpu()` 函数。以下是它们的作用说明：
+btext 调用了 `recover_bootinfo()` 和 `identify_cpu()` 例程，它们也定义在 **locore.s** 中。以下是它们的作用说明：
 
-| `recover_bootinfo` | 该例程解析引导程序传递给内核的参数。内核可能通过三种方式启动：通过上面描述的加载器，通过旧的磁盘引导块，或者通过旧的无盘引导程序。此函数确定引导方式，并将 `struct bootinfo` 结构存储到内核内存中。 |
+| `recover_bootinfo` | 该例程解析引导程序传递给内核的参数。内核可能通过三种方式启动：通过上面描述的加载器，通过旧的磁盘引导块，或者通过旧的无盘引导过程。此函数确定引导方式，并将 `struct bootinfo` 结构存储到内核内存中。 |
 | ------------------ | ----------------------------------------------------------------------------------------------------------- |
 | `identify_cpu`     | 该函数试图找出运行的 CPU 类型，并将找到的值存储在变量 `_cpu` 中。                                                                     |
 
@@ -870,16 +870,16 @@ sys/i386/i386/mpboot.s:
 
 接下来的三行代码是因为已设置分页，因此需要跳转到虚拟地址空间中继续执行：
 
-```
+```asm
 sys/i386/i386/mpboot.s:
 	pushl	$mp_begin				/* 跳转到高内存 */
 	ret
 
-/* 现在运行在 KERNBASE 处，即系统被链接以运行的地方 */
-mp_begin:	/* 现在运行在 KERNBASE */
+/* 现在重定位运行在 KERNBASE 处，即系统被链接以运行的地方 */
+mp_begin:	/* 现在重定位运行在 KERNBASE */
 ```
 
-内核在调用 `mi_startup()` 后完成引导，而在此之前调用了 `init386()`。`init386()` 是一个与架构相关的初始化函数，而 `mi_startup()` 是一个与架构无关的函数（'mi\_' 前缀表示与机器无关）。内核在调用 `mi_startup()` 后不会再返回，且通过调用它，内核完成了引导：
+`init386()` 函数被调用时，参数是指向第一个空闲物理页的指针，之后调用 `mi_startup()`。`init386()` 是一个与架构相关的初始化函数，而 `mi_startup()` 是一个与架构无关的函数（'mi\_' 前缀表示与机器无关）。内核在调用 `mi_startup()` 后不会再返回，且通过调用它，内核完成了引导：
 
 ```asm
 sys/i386/i386/locore.s:
@@ -893,7 +893,7 @@ sys/i386/i386/locore.s:
 
 ### 1.9.1. `init386()`
 
-`init386()` 定义在 **sys/i386/i386/machdep.c** 中，执行与 i386 芯片特定的低级初始化。保护模式的切换由加载器完成。加载器已经创建了第一个任务，内核在其中继续运行。在查看代码之前，可以考虑处理器必须完成的任务，以初始化保护模式执行：
+`init386()` 定义在 **sys/i386/i386/machdep.c** 中，执行针对 i386 芯片的低级初始化。保护模式的切换由加载器完成。加载器已经创建了第一个任务，内核在其中继续运行。在查看代码之前，先考虑处理器为初始化保护模式执行而必须完成的任务：
 
 * 初始化从引导程序传递过来的内核可调参数。
 * 准备 GDT（全局描述符表）。
@@ -902,7 +902,7 @@ sys/i386/i386/locore.s:
 * 初始化 DDB（调试器），如果它被编译到内核中。
 * 初始化 TSS（任务状态段）。
 * 准备 LDT（局部描述符表）。
-* 设置线程 0 的 PCB（进程控制块）。
+* 设置 `thread0` 的 PCB（进程控制块）。
 
 `init386()` 通过设置环境指针（envp）并调用 `init_param1()` 来初始化从引导程序传递过来的可调参数。envp 指针是通过 `bootinfo` 结构从加载器传递过来的：
 
@@ -912,7 +912,7 @@ sys/i386/i386/machdep.c:
 	init_param1();
 ```
 
-`init_param1()` 定义在 **sys/kern/subr\_param.c** 中。该文件有多个 sysctl 以及两个函数 `init_param1()` 和 `init_param2()`，它们都从 `init386()` 被调用：
+`init_param1()` 定义在 **sys/kern/subr_param.c** 中。该文件有多个 sysctl 以及两个函数 `init_param1()` 和 `init_param2()`，都由 `init386()` 调用：
 
 ```c
 sys/kern/subr_param.c:
@@ -922,29 +922,22 @@ sys/kern/subr_param.c:
 		hz = vm_guest > VM_GUEST_NO ? HZ_VM : HZ;
 ```
 
-`TUNABLE_INT_FETCH` 用于从环境中获取值：
+`TUNABLE_<typename>_FETCH` 用于从环境中获取值：
 
 ```c
 /usr/src/sys/sys/kernel.h:
 #define	TUNABLE_INT_FETCH(path, var)	getenv_int((path), (var))
 ```
 
-Sysctl `kern.hz` 是系统时钟滴答的频率。此外，`init_param1()` 还设置了以下 sysctl：`kern.maxswzone`、`kern.maxbcache`、`kern.maxtsiz`、`kern.dfldsiz`、`kern.maxdsiz`、`kern.dflssiz`、`kern.maxssiz`、`kern.sgrowsiz`。
+Sysctl `kern.hz` 是系统时钟节拍。此外，`init_param1()` 还设置了以下 sysctl：`kern.maxswzone`、`kern.maxbcache`、`kern.maxtsiz`、`kern.dfldsiz`、`kern.maxdsiz`、`kern.dflssiz`、`kern.maxssiz`、`kern.sgrowsiz`。
 
-然后，`init386()` 准备了全局描述符表（GDT）。在 x86 上，每个任务都在自己的虚拟地址空间中运行，这个空间由段：偏移对来寻址。例如，假设当前由处理器执行的指令位于 CS\:EIP，那么该指令的线性虚拟地址将是“代码段 CS 的虚拟地址”+ EIP。为了方便，段从虚拟地址 0 开始，到达 4GB 边界。因此，在此示例中，指令的线性虚拟地址仅为 EIP 的值。像 CS、DS 等段寄存器就是选择符，即 GDT 的索引（准确地说，选择符的索引字段才是索引，而不是选择符本身）。FreeBSD 的 GDT 为每个 CPU 持有 15 个选择符的描述符：
+然后，`init386()` 准备了全局描述符表（GDT）。在 x86 上，每个任务都在自己的虚拟地址空间中运行，这个空间由段:偏移对来寻址。例如，假设当前由处理器执行的指令位于 CS:EIP，那么该指令的线性虚拟地址将是“代码段 CS 的虚拟地址”+ EIP。为了方便，段从虚拟地址 0 开始，到达 4GB 边界。因此，在此示例中，指令的线性虚拟地址仅为 EIP 的值。像 CS、DS 等段寄存器就是选择符，即 GDT 的索引（准确地说，选择符的索引字段才是索引，而不是选择符本身）。FreeBSD 的 GDT 为每个 CPU 持有 15 个选择符的描述符：
 
-
-在 `init386()` 中，首先会初始化 GDT（全局描述符表）。以下代码定义了初始的 GDT，并设置为 `gdt0`：
-
-```
+```c
 sys/i386/i386/machdep.c:
 union descriptor gdt0[NGDT];	/* 初始的全局描述符表 */
 union descriptor *gdt = gdt0;	/* 全局描述符表 */
-```
 
-然后，在 **sys/x86/include/segments.h** 中定义了 GDT 中的各个选择符（selector）：
-
-```
 sys/x86/include/segments.h:
 /*
  * GDT 表中的各个条目
@@ -971,9 +964,9 @@ sys/x86/include/segments.h:
 #define	NGDT		19
 ```
 
-这些定义并不是选择符本身，而仅仅是选择符的索引字段。它们对应 GDT 中的各个条目的索引。例如，内核代码选择符（`GCODE_SEL`）的实际选择符值是 0x20。
+注意，这些 `#define` 本身并不是选择符，而仅仅是选择符的索引字段，因此它们就是 GDT 的索引。例如，内核代码选择符（`GCODE_SEL`）的实际选择符值是 0x20。
 
-接下来，`init386()` 会初始化中断描述符表（IDT）。该表由处理器在发生软件或硬件中断时引用。例如，用户应用程序通过发出 `INT 0x80` 指令来进行系统调用。这是一个软件中断，处理器的硬件会查找 IDT 中索引为 0x80 的记录，这个记录指向处理该中断的例程。在这种情况下，指向的就是内核的系统调用门（syscall gate）。IDT 最多可以有 256 条记录。内核为 IDT 分配了 NIDT 条记录，其中 NIDT 是最大值（256）：
+接下来初始化中断描述符表（IDT）。该表由处理器在发生软件或硬件中断时引用。例如，用户应用程序通过发出 `INT 0x80` 指令来进行系统调用。这是一个软件中断，处理器的硬件会查找 IDT 中索引为 0x80 的记录，这个记录指向处理该中断的例程。在这种情况下，指向的就是内核的系统调用门（syscall gate）。IDT 最多可以有 256 条记录。内核为 IDT 分配了 NIDT 条记录，其中 NIDT 是最大值（256）：
 
 ```
 sys/i386/i386/machdep.c:
@@ -991,7 +984,7 @@ sys/i386/i386/machdep.c:
 
 当用户空间的应用程序发出 `INT 0x80` 指令时，控制将转移到内核代码段中的函数 `_Xint0x80_syscall`，并以 supervisor 特权级别执行。
 
-接下来，控制台和 DDB（内核调试器）被初始化：
+接下来初始化控制台和 DDB：
 
 ```
 sys/i386/i386/machdep.c:
@@ -1005,7 +998,9 @@ sys/i386/i386/machdep.c:
 ```
 
 
-任务状态段（TSS）是另一个 x86 保护模式结构。TSS 由硬件在任务切换时存储任务信息。接下来是局部描述符表（LDT）的初始化。LDT 用于引用用户空间的代码和数据。以下是定义 LDT 中选择符的几个宏，它们是系统调用门和用户代码、数据选择符：
+任务状态段（TSS）是另一个 x86 保护模式结构。硬件在任务切换时使用 TSS 来存储任务信息。
+
+局部描述符表（LDT）用于引用用户空间的代码和数据。定义了几个指向 LDT 的选择符，它们是系统调用门和用户代码、数据选择符：
 
 ```
 sys/x86/include/segments.h:
@@ -1016,7 +1011,7 @@ sys/x86/include/segments.h:
 #define	NLDT		(LUDATA_SEL + 1)
 ```
 
-接下来，初始化 `proc0` 的进程控制块（PCB）结构。`proc0` 是一个描述内核进程的 `struct proc` 结构，它在内核运行时始终存在，因此它与 `thread0` 关联：
+接下来，初始化 `proc0` 的进程控制块（`struct pcb`）结构。`proc0` 是一个描述内核进程的 `struct proc` 结构，它在内核运行时始终存在，因此它与 `thread0` 关联：
 
 ```
 sys/i386/i386/machdep.c:
@@ -1030,15 +1025,15 @@ init386(int first)
 }
 ```
 
-`struct pcb` 是 `proc` 结构的一部分，定义了与 i386 架构相关的进程信息，如寄存器值。
+`struct pcb` 是 `proc` 结构的一部分，定义在 **/usr/include/machine/pcb.h** 中，包含与 i386 架构相关的进程信息，如寄存器值。
 
-### 1.9.2. `mi_startup()` 系统初始化
+### 1.9.2. `mi_startup()`
 
 `mi_startup()` 函数执行所有系统初始化对象的冒泡排序，然后依次调用每个对象的入口函数：
 
 ```c
 sys/kern/init_main.c:
-for (sipp = sysinit; sipp < sysinit_end; sipp++) {
+	for (sipp = sysinit; sipp < sysinit_end; sipp++) {
 
 		/* ... 省略 ... */
 
@@ -1047,6 +1042,8 @@ for (sipp = sysinit; sipp < sysinit_end; sipp++) {
 		/* ... 省略 ... */
 	}
 ```
+
+虽然 sysinit 框架在「Developers' Handbook」中有所描述，但这里将讨论其内部实现。
 
 每个系统初始化对象（sysinit 对象）都是通过调用 `SYSINIT()` 宏来创建的。以下是一个 `announce` sysinit 对象的示例，它打印版权信息：
 
@@ -1063,7 +1060,7 @@ SYSINIT(announce, SI_SUB_COPYRIGHT, SI_ORDER_FIRST, print_caddr_t, copyright);
 
 该对象的子系统 ID 为 `SI_SUB_COPYRIGHT`（0x0800001），因此版权信息会在控制台初始化之后首先打印。
 
-宏 `SYSINIT()` 扩展为 `C_SYSINIT()` 宏。`C_SYSINIT()` 宏再扩展为一个静态的 `struct sysinit` 结构声明，并调用 `DATA_SET` 宏：
+让我们看看 `SYSINIT()` 宏具体做了什么。它扩展为 `C_SYSINIT()` 宏。`C_SYSINIT()` 宏再扩展为一个静态的 `struct sysinit` 结构声明，并调用 `DATA_SET` 宏：
 
 ```c
 /usr/include/sys/kernel.h:
@@ -1101,7 +1098,7 @@ Idx Name                               Size     VMA      Type
 
 这段输出显示 `set.sysinit_set` 的大小是 0x14d8 字节，因此 `0x14d8/sizeof(void *)` 个 sysinit 对象被编译进内核。其他段如 `set.sysctl_set` 表示其他链接器集。
 
-通过定义一个类型为 `struct sysinit` 的变量，`set.sysinit_set` 部分的内容将被“收集”到该变量中：
+通过定义一个类型为 `struct sysinit` 的变量，`set.sysinit_set` 段的内容将被“收集”到该变量中：
 
 ```c
 sys/kern/init_main.c:
@@ -1110,7 +1107,7 @@ sys/kern/init_main.c:
 
 `struct sysinit` 定义如下：
 
-```asm
+```c
 sys/sys/kernel.h:
   struct sysinit {
 	enum sysinit_sub_id	subsystem;	/* 子系统标识符 */
@@ -1122,7 +1119,7 @@ sys/sys/kernel.h:
 
 回到 `mi_startup()` 的讨论，现在必须清楚，sysinit 对象是如何组织的。`mi_startup()` 函数对它们进行排序并逐个调用。最后一个对象是系统调度器：
 
-```asm
+```c
 /usr/include/sys/kernel.h:
 enum sysinit_sub_id {
 	SI_SUB_DUMMY		= 0x0000000,	/* 未执行；用于链接器 */
@@ -1134,7 +1131,7 @@ enum sysinit_sub_id {
 };
 ```
 
-系统调度器的 sysinit 对象定义在文件 **sys/vm/vm\_glue.c** 中，该对象的入口点是 `scheduler()`。该函数实际上是一个无限循环，它代表一个进程，PID 为 0，即交换进程。之前提到的 `thread0` 结构用于描述它。
+系统调度器的 sysinit 对象定义在文件 **sys/vm/vm_glue.c** 中，该对象的入口点是 `scheduler()`。该函数实际上是一个无限循环，它代表一个进程，PID 为 0，即交换进程。之前提到的 `thread0` 结构用于描述它。
 
 第一个用户进程，即 *init*，由 sysinit 对象 `init` 创建：
 
@@ -1182,7 +1179,7 @@ create_init(const void *udata __unused)
 SYSINIT(init, SI_SUB_CREATE_INIT, SI_ORDER_FIRST, create_init, NULL);
 ```
 
-`create_init()` 函数通过调用 `fork1()` 分配一个新进程，但没有标记它为可运行。当这个新进程被调度器调度执行时，将会调用 `start_init()`。该函数定义在 **init\_main.c** 中。它尝试加载并执行 **init** 二进制文件，首先探测 **/sbin/init**，然后是 **/sbin/oinit**、**/sbin/init.bak**，最后是 **/rescue/init**：
+`create_init()` 函数通过调用 `fork1()` 分配一个新进程，但没有标记它为可运行。当这个新进程被调度器调度执行时，将会调用 `start_init()`。该函数定义在 **init_main.c** 中。它尝试加载并执行 **init** 二进制文件，首先探测 **/sbin/init**，然后是 **/sbin/oinit**、**/sbin/init.bak**，最后是 **/rescue/init**：
 
 ```c
 sys/kern/init_main.c:
